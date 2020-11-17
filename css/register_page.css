@@ -1,0 +1,15 @@
+#windowRegister {
+    margin-top: 10px;
+    border: 5px solid #f3ad78;
+    border-radius: 5px;
+    padding: 5px 5px;
+    margin-bottom: 50px;
+}
+
+.offsetFromTop {
+    margin-top: 10px;
+}
+
+.myButton {
+    margin-top: 40px;
+}

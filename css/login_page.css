@@ -1,0 +1,60 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #e0e0e0;
+}
+
+.myButton {
+    color: #fff;
+    border: none;
+    margin-top: 40px;
+    min-height: 50px;
+    display: block;
+    width: 100%;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px #eee;
+    background-image: linear-gradient(to right, #DE6262 0%, #FFB88C  51%, #DE6262  100%)
+}
+
+.myButton:hover {
+    background-position: right center;
+    color: #4e555b;
+}
+
+.offsetFromTop {
+    margin-top: 50px;
+}
+
+.bgColor {
+    background-image: linear-gradient(to bottom right, #ffffff 0%, #d7e1ec 74%);
+}
+
+#windowLogin {
+    border: 5px solid #f3ad78;
+    border-radius: 5px;
+    margin-top: 30px;
+    padding: 5px 5px;
+    margin-bottom: 50px;
+}
+
+.bookImg {
+    border-radius: 10%;
+    border: 10px solid #f3ad78;
+}
+
+#underFormText {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.backIcon {
+    margin-left: 3px;
+    font-size: 20px;
+    color: black;
+    font-weight: bold;
+}
+
+.backIcon:hover {
+    color: orange;
+}

@@ -1,0 +1,104 @@
+.bookItem {
+    margin-top: 10px;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.paddingZero {
+    padding: 0;
+}
+
+.itemIcon {
+    border: 1px solid black;
+    border-radius: 7px 0 0 7px;
+}
+
+.card {
+    border: 1px solid black;
+    border-left: 0;
+    border-radius: 0 7px 7px 0;
+}
+
+.myCard {
+    padding: 8px;
+}
+
+.autor {
+    font-style: italic;
+}
+
+.shortInfo {
+    font-size: small;
+}
+
+.dostupneIcon {
+    color: darkgreen;
+}
+
+.nedostupneIcon {
+    color: darkred;
+}
+
+.categoryTitle {
+    background-color: #ff9007;
+    font-size: 20px;
+    border: 2px solid black
+}
+
+.orangeBadge {
+    background-color: #fac583;
+}
+
+.orangeFont {
+    color: #ff9007;
+}
+
+.outlineButton {
+    border: 1px solid black;
+}
+
+.outlineButton:hover {
+    box-shadow: 0 0 5px orange;
+}
+
+.outlineButton:focus {
+    box-shadow: 0 0 5px orange;
+}
+
+.dropDownItem:hover {
+    background-color: #ff9007;
+}
+
+.buttonAvailable {
+    background-color: #00ff55;
+}
+
+.buttonAvailable:focus {
+    box-shadow:0 0 5px green;
+}
+
+.buttonUnavailable {
+    background-color: #b0b3b7;
+}
+
+/* Tato cast je prevzata zo: */
+/* https://stackoverflow.com/questions/48401587/bootstrap4-radio-button-background-and-fill-color/48401949 */
+.custom-control-input:checked ~ .custom-control-label::before {
+    color: #fff;
+    border-color: #ff9c07;
+    background-color: #ff9007;
+    box-shadow: none;
+}
+
+@media (max-width: 576px) {
+    .card {
+        border: 1px solid black;
+        border-top: 0;
+        border-radius: 0 0 7px 7px;
+    }
+
+    .itemIcon {
+        border: 1px solid black;
+        border-radius: 7px 7px 0 0;
+    }
+}
