@@ -23,11 +23,6 @@
                         <label for="idMeno" class="font-weight-bold">Meno</label>
                         <input type="text" class="form-control" id="idMeno" placeholder="Meno" name="name">
                     </div>
-                    <!-- Error -->
-                    <div class="alert alert-danger " role="alert">
-                        A simple danger alert—check it out!
-                    </div>
-                    <!-- Error -->
                     <div class="form-group">
                         <label for="idPriezvisko" class="font-weight-bold">Priezvisko</label>
                         <input type="text" class="form-control" id="idPriezvisko" placeholder="Priezvisko" name="surname">

@@ -6,6 +6,8 @@ use App\App;
 use PDO;
 use PDOException;
 
+class KeyNotFoundException extends \Exception {}
+
 /**
  * Class Model
  * Abstract class serving as a simple model example, predecessor of all models
@@ -15,11 +17,15 @@ use PDOException;
 abstract class Model
 {
     private static $db = null;
-    private static $pkColumn = 'id';
 
     abstract static public function setDbColumns();
-
+    abstract static public function setPrimaryKeyColumnName();
     abstract static public function setTableName();
+
+    private static function getPKColumnName()
+    {
+        return static::setPrimaryKeyColumnName();
+    }
 
     /**
      * Gets a db columns from a model
@@ -99,9 +105,9 @@ abstract class Model
     {
         self::connect();
         try {
-            $sql = "SELECT * FROM " . self::getTableName() . " WHERE id=$id";
+            $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :id";
             $stmt = self::$db->prepare($sql);
-            $stmt->execute([$id]);
+            $stmt->execute(['id' => $id]);
             $model = $stmt->fetch();
             if ($model) {
                 $data = array_fill_keys(self::getDbColumns(), null);
@@ -111,12 +117,13 @@ abstract class Model
                 }
                 return $tmpModel;
             } else {
-                throw new \Exception('Record not found!');
+                throw new KeyNotFoundException('Record not found!');
             }
         } catch (PDOException $e) {
             throw new \Exception('Query failed: ' . $e->getMessage());
         }
     }
+
 
     /**
      * Saves the current model to DB (if model id is set, updates it, else creates a new model)
@@ -130,7 +137,7 @@ abstract class Model
             foreach ($data as $key => &$item) {
                 $item = $this->$key;
             }
-            if ($data[self::$pkColumn] == null) {
+            if ($data[self::getPKColumnName()] == null) {
                 $arrColumns = array_map(fn($item) => (':' . $item), array_keys($data));
                 $columns = implode(',', array_keys($data));
                 $params = implode(',', $arrColumns);
@@ -140,9 +147,9 @@ abstract class Model
             } else {
                 $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
-                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE id=:" . self::$pkColumn;
+                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE id=:" . self::getPKColumnName();
                 self::$db->prepare($sql)->execute($data);
-                return $data[self::$pkColumn];
+                return $data[self::getPKColumnName()];
             }
         } catch (PDOException $e) {
             throw new \Exception('Query failed: ' . $e->getMessage());
@@ -155,18 +162,72 @@ abstract class Model
      */
     public function delete()
     {
-        if ($this->{self::$pkColumn} == null) {
+        if ($this->{self::getPKColumnName()} == null) {
             return;
         }
         self::connect();
         try {
             $sql = "DELETE FROM " . self::getTableName() . " WHERE id=?";
             $stmt = self::$db->prepare($sql);
-            $stmt->execute([$this->{self::$pkColumn}]);
+            $stmt->execute([$this->{self::getPKColumnName()}]);
             if ($stmt->rowCount() == 0) {
                 throw new \Exception('Model not found!');
             }
         } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Insert item into database, if item is already present throws Exception
+     * @return bool Returns true if insert was successful
+     * @throws \Exception
+     */
+    public function insert()
+    {
+        self::connect();
+        try
+        {
+            $data = array_fill_keys(self::getDbColumns(), null);
+            foreach ($data as $key => &$item)
+                $item = $this->$key;
+
+            if (!self::containsKey($data[self::getPKColumnName()]))
+            {
+                $arrColumns = array_map(fn($item) => (':' . $item), array_keys($data));
+                $columns = implode(',', array_keys($data));
+                $params = implode(',', $arrColumns);
+                $sql = "INSERT INTO " . self::getTableName() . " ($columns) VALUES ($params)";
+                self::$db->prepare($sql)->execute($data);
+                return true;
+            }
+            else
+            {
+                throw new \Exception('Item with this key already present in database');
+            }
+        } catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $keyVal
+     * @return bool True if key is present in table
+     * @throws \Exception
+     */
+    static public function containsKey($keyVal)
+    {
+        self::connect();
+        try
+        {
+            $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :key";
+            $stmt = self::$db->prepare($sql);
+            $stmt->execute(['key' => $keyVal]);
+            return (!$stmt->fetch() ? false : true);
+        }
+        catch (PDOException $e)
+        {
             throw new \Exception('Query failed: ' . $e->getMessage());
         }
     }
