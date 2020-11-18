@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <div class="container">
     <nav class="navbar navbar-expand-md myNavbar">
         <a href="semestralka?c=MainPage" class="navbar-brand">
@@ -16,7 +17,11 @@
                 <a href="semestralka?c=Profil" class="nav-item nav-link"> <i class="fas fa-user"></i> Profil </a>
             </div>
             <div class="navbar-nav ml-auto">
-                <a href="semestralka?c=Login" class="nav-item nav-link">Prihlásenie / Registrácia</a>
+                <?php if (isset($_SESSION['user'])) { ?>
+                    <a href="semestralka?c=MainPage&a=logout" class="nav-item nav-link">Odhlásiť sa</a>
+                <?php } else { ?>
+                    <a href="semestralka?c=Login" class="nav-item nav-link">Prihlásenie / Registrácia</a>
+                <?php } ?>
             </div>
         </div>
     </nav>

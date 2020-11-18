@@ -1,3 +1,4 @@
+<?php /** @var $data */ ?>
 <title>Prihlásenie</title>
 <link rel="stylesheet" href="semestralka/css/login_page.css">
 </head>
@@ -18,15 +19,20 @@
 
                 <h2 class="text-center" id="loginLabel">Prihlásenie</h2>
 
-                <form action="#" class="mt-0 ml-5 mr-5 mb-2">
+                <form action="semestralka?c=Login" class="mt-0 ml-5 mr-5 mb-2" method="post">
                     <div class="form-group">
                         <label for="idEmail" class="font-weight-bold">Email</label>
-                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email">
+                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email" value="<?= is_null($data) ? "" : $data['email'] ?>">
                     </div>
                     <div class="form-group">
                         <label for="idHeslo" class="font-weight-bold">Heslo</label>
-                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password">
+                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password" value="<?= is_null($data) ? "" : $data['password'] ?>">
                     </div>
+                    <?php if (!is_null($data)) { ?>
+                        <div class="alert alert-danger" role="alert">
+                            Zadané prihlasovacie údaje sú nesprávne
+                        </div>
+                    <?php } ?>
                     <div class="text-center">
                         <button type="submit" class="myButton">Prihlásiť</button>
                     </div>

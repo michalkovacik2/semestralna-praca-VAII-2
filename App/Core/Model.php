@@ -5,8 +5,7 @@ namespace App\Core;
 use App\App;
 use PDO;
 use PDOException;
-
-class KeyNotFoundException extends \Exception {}
+use App\Core\KeyNotFoundException;
 
 /**
  * Class Model
