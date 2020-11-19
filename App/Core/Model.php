@@ -230,4 +230,92 @@ abstract class Model
             throw new \Exception('Query failed: ' . $e->getMessage());
         }
     }
+
+    /**
+     * @param $from Index of beggining
+     * @param $len Number of elements
+     * @return array Array of items
+     * @throws \Exception
+     */
+    static public function getFrom($from, $len)
+    {
+        self::connect();
+        try
+        {
+            $sql = "SELECT * FROM " . self::getTableName() . " LIMIT :limit, :len";
+            $stmt = self::$db->prepare($sql);
+            $stmt->bindValue(':limit', (int) $from, PDO::PARAM_INT);
+            $stmt->bindValue(':len', (int) $len, PDO::PARAM_INT);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model)
+            {
+                $tmpModel = new static();
+                $data = array_fill_keys(self::getDbColumns(), null);
+                foreach ($data as $key => $item) {
+                    $tmpModel->$key = $model[$key];
+                }
+                $models[] = $tmpModel;
+            }
+            return $models;
+        }
+        catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $from
+     * @param $len
+     * @param $orderByCol
+     * @return array Array of items
+     * @throws \Exception
+     */
+    static public function getFromOrderBy($from, $len, $orderByCol)
+    {
+        self::connect();
+        try
+        {
+            $sql = "SELECT * FROM " . self::getTableName() . " ORDER BY :colOrder DESC LIMIT :limit, :len";
+            $stmt = self::$db->prepare($sql);
+            $stmt->bindValue(':colOrder', (int) $orderByCol, PDO::PARAM_INT);
+            $stmt->bindValue(':limit', (int) $from, PDO::PARAM_INT);
+            $stmt->bindValue(':len', (int) $len, PDO::PARAM_INT);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model)
+            {
+                $tmpModel = new static();
+                $data = array_fill_keys(self::getDbColumns(), null);
+                foreach ($data as $key => $item) {
+                    $tmpModel->$key = $model[$key];
+                }
+                $models[] = $tmpModel;
+            }
+            return $models;
+        }
+        catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    static public function getNumberOfRows()
+    {
+        self::connect();
+        try
+        {
+            $sql = "SELECT COUNT(" . self::getPKColumnName() .") FROM " . self::getTableName();
+            $stmt = self::$db->query($sql);
+            $res = $stmt->fetch();
+            return intval($res[0]);
+        }
+        catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
 }

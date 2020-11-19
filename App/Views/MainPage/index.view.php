@@ -17,138 +17,80 @@
     <h1 class="display-3" id="novinky"> Novinky </h1>
 </div>
 
+<?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
+    <div class="container">
+        <h4><a href="" class="adminControls"> <i class="fas fa-plus"></i> Pridaj novú </a></h4>
+    </div>
+<?php } ?>
+
 <div class="container infoCards">
     <div class="row">
+        <?php /** @var \App\Models\News[] $data */ ?>
+        <?php foreach ($data['news'] as $info) { ?>
         <!-- Karta -->
         <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
             <div class="card">
-                <img src="semestralka/img/news1.png" class="card-img-top" alt="Obrazok otvorenej knihy" >
+                <img src="data:image/png;base64,<?= $info->getPicture() ?>" class="card-img-top" alt="obrazok pre novinky">
                 <div class="card-body">
-                    <h2 class="card-title">Nová kniha od Larsa Keplera !</h2>
+                    <h2 class="card-title"><?= $info->getTitle() ?></h2>
                     <p class="card-text">
-                        Od dnešného dňa si môžete prečítať výbornú knihu Zrkadlový muž, ktorá si získala veľmi veľa čitateľov
-                        po celom svete. Neváhajte a knihu si rezervujte na našom <a href="#">webe</a>.
+                        <?= $info->getText() ?>
                     </p>
                 </div>
                 <footer>
+                    <?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
+                        <span class="float-left m-2">
+                            <a href="" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
+                            <a href="" class="adminControls"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </a>
+                        </span>
+                    <?php } ?>
                     <small class="text-muted float-right m-2">
-                        <time datetime="2020-09-29 06:05">29.9.2020 06:05</time>
+                        <time datetime="<?= $info->getCreationDate() ?>"><?= $info->getCreationDate() ?></time>
                     </small>
                 </footer>
             </div>
         </div>
-        <!-- Karta -->
-        <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
-            <div class="card">
-                <img src="semestralka/img/news2.png" class="card-img-top" alt="Stormbreaker obal knihy" >
-                <div class="card-body">
-                    <h2 class="card-title">Stormbreaker už aj u nás</h2>
-                    <p class="card-text">
-                        Nový detektívny príbeh od Vašeho obľúbeného autora. Aké dobrodružstvo čaká nášho hrdinu, to
-                        sa dozviete v obľúbenej knihe <strong>Stormbreaker</strong>.
-                        Kniha bola vo svete natoľko úspešná, že sa pripravuje filmová verzia. <br>
-                        Neváhajte a rezervujte si túto knižku na našej stránke.
-                    </p>
-                </div>
-                <footer>
-                    <small class="text-muted float-right m-2">
-                        <time datetime="2020-09-14 12:05">14.9.2020 12:05</time>
-                    </small>
-                </footer>
-            </div>
-        </div>
-        <!-- Karta -->
-        <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
-            <div class="card">
-                <img src="semestralka/img/news3.png" class="card-img-top" alt="kluc a kvet na knihe" >
-                <div class="card-body">
-                    <h2 class="card-title">Súťažte s knižnicou</h2>
-                    <p class="card-text">
-                        Zapojte sa do súťaže a vyhrajte vecné ceny. Stačí napísať krátku básničku o knihe,
-                        poprípade o autorovi. A zašlite nám ju na náš email.
-                    </p>
-                </div>
-                <footer>
-                    <small class="text-muted float-right m-2">
-                        <time datetime="2020-07-16 20:00">16.7.2020 20:00</time>
-                    </small>
-                </footer>
-            </div>
-        </div>
-        <!-- Karta -->
-        <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
-            <div class="card">
-                <img src="semestralka/img/news4.png" class="card-img-top" alt="zlata kniha" >
-                <div class="card-body">
-                    <h2 class="card-title">Najobľúbenejšia kniha </h2>
-                    <p class="card-text">
-                        Zahlasujte o najlepšiu knihu roka na našej stránke.
-                    </p>
-                </div>
-                <footer>
-                    <small class="text-muted float-right m-2">
-                        <time datetime="2020-04-12 18:50">12.4.2020 18:50</time>
-                    </small>
-                </footer>
-            </div>
-        </div>
-        <!-- Karta -->
-        <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
-            <div class="card">
-                <img src="semestralka/img/news1.png" class="card-img-top" alt="A aj tento" >
-                <div class="card-body">
-                    <h2 class="card-title">Dalsia novinka !</h2>
-                    <p class="card-text">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus asperiores assumenda iusto
-                        libero optio quis repellendus, unde? Cum deleniti esse eveniet fugiat quam sit tempore tenetur?
-                        Culpa enim impedit ipsam.
-                    </p>
-                </div>
-                <footer>
-                    <small class="text-muted float-right m-2">
-                        <time datetime="2019-01-11 07:20">11.1.2019 07:20</time>
-                    </small>
-                </footer>
-            </div>
-        </div>
-        <!-- Karta -->
-        <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
-            <div class="card">
-                <img src="semestralka/img/news2.png" class="card-img-top" alt="Tento obrazok tu uz bol" >
-                <div class="card-body">
-                    <h2 class="card-title">Dalsia novinka !</h2>
-                    <p class="card-text">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus asperiores assumenda iusto
-                        libero optio quis repellendus, unde?
-                    </p>
-                </div>
-                <footer>
-                    <small class="text-muted float-right m-2">
-                        <time datetime="2019-03-02 09:23">2.3.2019 09:23</time>
-                    </small>
-                </footer>
-            </div>
-        </div>
+        <?php } ?>
+
     </div>
 </div>
 
 <nav aria-label="Hladanie medzi novinkami">
     <ul class="pagination justify-content-center">
-        <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">
-                <i class="fas fa-arrow-left"></i>
-            </a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">4</a></li>
-        <li class="page-item"><a class="page-link" href="#">5</a></li>
-        <li class="page-item"><a class="page-link" href="#">6</a></li>
-        <li class="page-item">
-            <a class="page-link" href="#">
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </li>
+        <?php if ($_GET['page'] == 0) { ?>
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </li>
+        <?php } else { ?>
+            <li class="page-item">
+                <a class="page-link" href="semestralka?c=MainPage&page=<?= $_GET['page'] - 1 ?>">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </li>
+        <?php } ?>
+
+        <?php for ($i=0; $i < $data['numberOfNews']; $i++) { ?>
+            <li class="page-item">
+                <a class="page-link" href="semestralka?c=MainPage&page=<?= $i ?>">
+                    <?= $i+1 ?>
+                </a>
+            </li>
+        <?php } ?>
+
+        <?php if ($_GET['page'] == ($data['numberOfNews'] - 1)) { ?>
+            <li class="page-item disabled">
+                <a class="page-link" href="#">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+        <?php } else { ?>
+            <li class="page-item">
+                <a class="page-link" href="semestralka?c=MainPage&page=<?= $_GET['page'] + 1 ?>">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+        <?php } ?>
     </ul>
 </nav>

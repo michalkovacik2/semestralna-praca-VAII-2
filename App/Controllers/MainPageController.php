@@ -2,12 +2,30 @@
 
 namespace App\Controllers;
 use App\Core\AControllerBase;
+use App\Models\News;
 
 class MainPageController extends AControllerBase
 {
+    private const NEWS_PER_PAGE = 4;
+
     public function index()
     {
-        return "";
+        $numRows = News::getNumberOfRows();
+        $numSites = intdiv($numRows, self::NEWS_PER_PAGE);
+        $numSites = $numRows % self::NEWS_PER_PAGE != 0 ? $numSites + 1 : $numSites;
+
+        if (!isset($_GET['page']))
+        {
+            $_GET['page'] = 0;
+            return [ 'news' => News::getFromOrderBy(0, self::NEWS_PER_PAGE, 5),
+                'numberOfNews' => $numSites ];
+        }
+        else
+        {
+            return [ 'news' => News::getFromOrderBy($_GET['page'] * self::NEWS_PER_PAGE, self::NEWS_PER_PAGE, 5),
+                'numberOfNews' => $numSites ];
+        }
+
     }
 
     public function logout()

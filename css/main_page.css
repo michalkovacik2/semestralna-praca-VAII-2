@@ -57,6 +57,16 @@ body {
     margin-top: 1vw;
 }
 
+.adminControls {
+    text-decoration: none;
+    color: #d6701a;
+}
+
+.adminControls:hover {
+    text-decoration: none;
+    color: orange;
+}
+
 @media (min-width: 576px) {
     .card-columns {
         column-count: 2;
@@ -66,5 +76,8 @@ body {
 @media screen and (max-width: 480px) {
     .bannerText {
         font-size: 4rem;
+    }
+    .hideWhenSmall {
+        display: none;
     }
 }
