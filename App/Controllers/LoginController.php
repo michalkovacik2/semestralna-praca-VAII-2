@@ -26,8 +26,7 @@ class LoginController extends AControllerBase
         {
             session_start();
             $_SESSION['user'] = $user;
-            header('Location: semestralka?c=MainPage');
-            die();
+            $this->redirectTo("MainPage");
         }
 
         return ['email' => $_POST['email'], 'password' => $_POST['password']];

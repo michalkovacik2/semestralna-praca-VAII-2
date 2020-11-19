@@ -67,6 +67,24 @@ body {
     color: orange;
 }
 
+.submitButton {
+    font-size: 20px;
+    border-radius: 5px;
+    background-color: orange;
+}
+
+.outlineButton {
+    border: 1px solid black;
+}
+
+.outlineButton:hover {
+    box-shadow: 0 0 5px orange;
+}
+
+.outlineButton:focus {
+    box-shadow: 0 0 5px orange;
+}
+
 @media (min-width: 576px) {
     .card-columns {
         column-count: 2;

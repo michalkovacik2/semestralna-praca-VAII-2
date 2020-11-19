@@ -1,4 +1,4 @@
-<?php session_start(); ?>
+<?php if (session_status() == PHP_SESSION_NONE) { session_start(); } ?>
 <div class="container">
     <nav class="navbar navbar-expand-md myNavbar">
         <a href="semestralka?c=MainPage" class="navbar-brand">

@@ -30,6 +30,12 @@ abstract class AControllerBase
         return end($arr);
     }
 
+    public function redirectTo($name)
+    {
+        header('Location: semestralka?c=' . $name);
+        die();
+    }
+
     /**
      * Every controller should implement the method for index action at least
      * @return mixed

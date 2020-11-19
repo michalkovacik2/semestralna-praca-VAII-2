@@ -19,7 +19,7 @@
 
 <?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
     <div class="container">
-        <h4><a href="" class="adminControls"> <i class="fas fa-plus"></i> Pridaj novú </a></h4>
+        <h4><a href="semestralka?c=MainPage&a=add" class="adminControls"> <i class="fas fa-plus"></i> Pridaj novú </a></h4>
     </div>
 <?php } ?>
 
@@ -43,7 +43,7 @@
                         <?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
                             <span class="float-left m-2">
                                 <a href="" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
-                                <a href="" class="adminControls"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </a>
+                                <a href="semestralka?c=MainPage&a=delete&id=<?= $info->getId(); ?>" class="adminControls"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </a>
                             </span>
                         <?php } ?>
                         <small class="text-muted float-right m-2">

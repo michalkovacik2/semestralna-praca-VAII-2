@@ -232,9 +232,9 @@ abstract class Model
     }
 
     /**
-     * @param $from Index of beggining
-     * @param $len Number of elements
-     * @return array Array of items
+     * @param $from
+     * @param $len
+     * @return array
      * @throws \Exception
      */
     static public function getFrom($from, $len)

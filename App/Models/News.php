@@ -12,10 +12,10 @@ class News extends Model
     protected $creation_date;
     protected $email;
 
-    public function __construct($id = null, $title = null, $text = null, $picture = null,
+    public function __construct($title = null, $text = null, $picture = null,
                                 $creation_date = null, $email = null)
     {
-        $this->id = $id;
+        $this->id = null;
         $this->title = $title;
         $this->text = $text;
         $this->picture = $picture;
