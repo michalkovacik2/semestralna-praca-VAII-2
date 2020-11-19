@@ -102,14 +102,105 @@ class MainPageController extends AControllerBase
                 $this->redirectTo("MainPage");
             }
 
-            $news->delete();
-            $this->redirectTo("MainPage");
-        }
+            $actualPage = $_GET['page'];
+            $numElements = $_GET['numElements'];
 
+            $news->delete();
+            if ($numElements > 1)
+            {
+                $this->redirectTo("MainPage&page=". $actualPage);
+            }
+            else
+            {
+                $actualPage = ($actualPage == 1 ? 1 : $actualPage - 1);
+                $this->redirectTo("MainPage&page=". $actualPage);
+            }
+        }
+        $this->redirectTo("MainPage");
         die();
     }
 
-    public function validate($title, $text, $file)
+    public function edit()
+    {
+        session_start();
+        if (!isset($_SESSION['user']) || $_SESSION['user']->getPermissions() != 'A' )
+        {
+            $this->redirectTo("MainPage");
+        }
+
+        if (!isset($_GET['id']))
+        {
+            $this->redirectTo("MainPage");
+        }
+
+        $news = null;
+        $errs = null;
+        try
+        {
+            $news = News::getOne($_GET['id']);
+        }
+        catch (KeyNotFoundException $ex)
+        {
+            $this->redirectTo("MainPage");
+        }
+
+        //Bola vykonana zmena uzivatelom
+        if (isset($_POST['title']) || isset($_POST['text']))
+        {
+            $news->setTitle(htmlspecialchars($_POST['title']));
+            $news->setText(htmlspecialchars($_POST['text']));
+            $titleErr = $this->validateTitle($news->getTitle());
+            $textErr = $this->validateText($news->getText());
+            $fileErr = [];
+            if (isset($_FILES['file']) && $_FILES['file']['size'] != 0)
+            {
+                $fileErr = $this->validateFile($_FILES['file']);
+            }
+
+            if (count($titleErr) > 0 || count($textErr) > 0 || count($fileErr) > 0)
+            {
+                $errs = ['title' => $titleErr, 'text' => $textErr, 'file' => $fileErr];
+            }
+            else
+            {
+                if ($_FILES['file']['size'] != 0)
+                    $news->setPicture(base64_encode(file_get_contents($_FILES['file']['tmp_name'])));
+
+                //$news->setCreationDate(date('Y-m-d H:i:s'));
+                $news->setEmail($_SESSION['user']->getEmail());
+                $news->save();
+                $this->redirectTo("MainPage");
+            }
+        }
+
+        return ['data' => $news, 'errors' => $errs];
+    }
+
+    private function validate($title, $text, $file)
+    {
+        $titleErrs = $this->validateTitle($title);
+        $textErrs = $this->validateText($text);
+        $fileErrs = $this->validateFile($file);
+
+        if (count($titleErrs) > 0 || count($textErrs) > 0 || count($fileErrs) > 0)
+        {
+            return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+        }
+
+        return null;
+    }
+
+    private function validateText($text)
+    {
+        $textErrs = [];
+        if (empty($text))
+        {
+            $textErrs[] = 'Prosim zadajte text';
+        }
+        return $textErrs;
+    }
+
+    private function validateTitle($title)
     {
         $titleErrs = [];
         if (empty($title))
@@ -123,25 +214,23 @@ class MainPageController extends AControllerBase
                 $titleErrs[] = 'Nadpis moze mat maximalne 30 znakov';
             }
         }
+        return $titleErrs;
+    }
 
-        $textErrs = [];
-        if (empty($text))
-        {
-            $textErrs[] = 'Prosim zadajte text';
-        }
-
+    private function validateFile($file)
+    {
         $fileErrs = [];
         if (!isset($file['error']))
         {
             $fileErrs[] = 'Prosim nahrajte obrazok';
-            return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+            return $fileErrs;
         }
         else
         {
             if (is_array($file['error']))
             {
                 $fileErrs[] = 'Nahrajte iba jeden subor';
-                return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+                return $fileErrs;
             }
 
             switch ($file['error'])
@@ -150,11 +239,11 @@ class MainPageController extends AControllerBase
                     break;
                 case UPLOAD_ERR_NO_FILE:
                     $fileErrs[] = 'Prosim nahrajte obrazok';
-                    return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+                    return $fileErrs;
                 case UPLOAD_ERR_INI_SIZE:
                 case UPLOAD_ERR_FORM_SIZE:
                     $fileErrs[] = 'Obrazok je prilis velky';
-                    return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+                    return $fileErrs;
                 default:
                     throw new \RuntimeException('File upload error');
             }
@@ -165,7 +254,7 @@ class MainPageController extends AControllerBase
             if ( $mtype != ( "image/png" ) && $mtype != ( "image/jpeg" ))
             {
                 $fileErrs[] = 'Obrazok musi byt png alebo jpeg';
-                return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
+                return $fileErrs;
             }
 
             $image_base64 = base64_encode(file_get_contents($file['tmp_name']));
@@ -175,12 +264,7 @@ class MainPageController extends AControllerBase
             }
         }
 
-        if (count($titleErrs) > 0 || count($textErrs) > 0 || count($fileErrs) > 0)
-        {
-            return ['title' => $titleErrs, 'text' => $textErrs, 'file' => $fileErrs];
-        }
-
-        return null;
+        return $fileErrs;
     }
 
 }

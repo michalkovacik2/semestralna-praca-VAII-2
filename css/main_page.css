@@ -65,6 +65,7 @@ body {
 .adminControls:hover {
     text-decoration: none;
     color: orange;
+    cursor: pointer;
 }
 
 .submitButton {

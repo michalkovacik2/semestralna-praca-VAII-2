@@ -42,9 +42,30 @@
                     <footer>
                         <?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
                             <span class="float-left m-2">
-                                <a href="" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
-                                <a href="semestralka?c=MainPage&a=delete&id=<?= $info->getId(); ?>" class="adminControls"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </a>
+                                <a href="semestralka?c=MainPage&a=edit&id=<?= $info->getId(); ?>" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
+                                <span class="adminControls" data-toggle="modal" data-target="#myModal<?= $info->getId(); ?>"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </span>
                             </span>
+
+                            <div class="modal" id="myModal<?= $info->getId(); ?>">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h2 class="modal-title">Odstránenie novinky</h2>
+                                            <button type="button" class="close" data-dismiss="modal"><i class="fas fa-times"></i></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            Naozaj si prajete odstrániť túto novinku. Po zmazaní budú údaje stratené.
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <a href="semestralka?c=MainPage&a=delete&page=<?= $_GET['page']; ?>&numElements=<?= count($data['news']); ?>&id=<?= $info->getId(); ?>" class="btn btn-danger">Zmazať</a>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
                         <?php } ?>
                         <small class="text-muted float-right m-2">
                             <time datetime="<?= $info->getCreationDate() ?>"><?= $info->getCreationDate() ?></time>
