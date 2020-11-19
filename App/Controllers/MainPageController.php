@@ -16,13 +16,17 @@ class MainPageController extends AControllerBase
 
         if (!isset($_GET['page']))
         {
-            $_GET['page'] = 0;
+            $_GET['page'] = 1;
             return [ 'news' => News::getFromOrderBy(0, self::NEWS_PER_PAGE, 5),
                 'numberOfNews' => $numSites ];
         }
         else
         {
-            return [ 'news' => News::getFromOrderBy($_GET['page'] * self::NEWS_PER_PAGE, self::NEWS_PER_PAGE, 5),
+            if ($_GET['page'] - 1 < 0 || $_GET['page'] > $numSites)
+            {
+                return null;
+            }
+            return [ 'news' => News::getFromOrderBy(($_GET['page'] - 1) * self::NEWS_PER_PAGE, self::NEWS_PER_PAGE, 5),
                 'numberOfNews' => $numSites ];
         }
 
