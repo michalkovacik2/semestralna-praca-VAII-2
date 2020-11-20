@@ -49,6 +49,28 @@ class RegisterController extends AControllerBase
 
     private function isValid($name, $surname, $email, $phone, $password, $passwordAgain)
     {
+        $nameErrs = $this->validateName($name);
+        $surnameErrs = $this->validateSurname($surname);
+        $emailErrs = $this->validateEmail($email);
+        $phoneErrs = $this->validatePhone($phone);
+        $passwordErrs = $this->validatePassword($password);
+        $password2Errs = $this->validatePassword2($password, $passwordAgain);
+
+        if (count($nameErrs) > 0 || count($surnameErrs) > 0 || count($emailErrs) > 0 || count($phoneErrs) > 0
+            || count($passwordErrs) > 0 || count($password2Errs) > 0)
+        {
+            return ['name' => $nameErrs, 'surname' => $surnameErrs, 'email' => $emailErrs, 'phone' => $phoneErrs,
+                     'password' => $passwordErrs, 'password2' => $password2Errs];
+        }
+        else
+        {
+            return null;
+        }
+
+    }
+
+    private function validateName($name)
+    {
         $nameErrs = [];
         if (empty($name))
         {
@@ -62,7 +84,11 @@ class RegisterController extends AControllerBase
             if (preg_match('/[^A-Za-z-]/', $name))
                 $nameErrs[] = "Meno smie obsahovat iba pismena";
         }
+        return $nameErrs;
+    }
 
+    private function validateSurname($surname)
+    {
         $surnameErrs = [];
         if (empty($surname))
         {
@@ -76,7 +102,11 @@ class RegisterController extends AControllerBase
             if (preg_match('/[^A-Za-z-]/', $surname))
                 $surnameErrs[] = "Priezvisko smie obsahovat iba pismena";
         }
+        return $surnameErrs;
+    }
 
+    private function validateEmail($email)
+    {
         $emailErrs = [];
         if (empty($email))
         {
@@ -84,16 +114,20 @@ class RegisterController extends AControllerBase
         }
         else
         {
-             if (strlen($email) > self::MAX_SIZE_EMAIL)
+            if (strlen($email) > self::MAX_SIZE_EMAIL)
                 $emailErrs[] = "Email nemoze byt dlhsi ako " . self::MAX_SIZE_EMAIL;
 
-             if (!filter_var($email, FILTER_VALIDATE_EMAIL))
-                 $emailErrs[] = "Zadany email nie je spravny";
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+                $emailErrs[] = "Zadany email nie je spravny";
 
-             if (User::containsKey($email))
-                 $emailErrs[] = "Iny pouzivatel uz ma rovnaky email, zvolte iny";
+            if (User::containsKey($email))
+                $emailErrs[] = "Iny pouzivatel uz ma rovnaky email, zvolte iny";
         }
+        return $emailErrs;
+    }
 
+    private function validatePhone($phone)
+    {
         $phoneErrs = [];
         if (empty($phone))
         {
@@ -109,7 +143,11 @@ class RegisterController extends AControllerBase
             if(substr($phone, 0, 3) != "421")
                 $phoneErrs[] = "Cislo musi mat format +421 alebo 421";
         }
+        return $phoneErrs;
+    }
 
+    private function validatePassword($password)
+    {
         $passwordErrs = [];
         if (empty($password))
         {
@@ -123,7 +161,11 @@ class RegisterController extends AControllerBase
             if (!(preg_match('/[^0-9]/', $password) && preg_match('/[0-9]/', $password)))
                 $passwordErrs[] = "Heslo musi obsahovat lubovolne znaky a aspon jednu cislicu";
         }
+        return $passwordErrs;
+    }
 
+    private function validatePassword2($password, $passwordAgain)
+    {
         $password2Errs = [];
         if (empty($passwordAgain))
         {
@@ -131,21 +173,9 @@ class RegisterController extends AControllerBase
         }
         else
         {
-             if ($passwordAgain != $password)
-                 $password2Errs[] = "Hesla sa musia zhodovat";
+            if ($passwordAgain != $password)
+                $password2Errs[] = "Hesla sa musia zhodovat";
         }
-
-
-        if (count($nameErrs) > 0 || count($surnameErrs) > 0 || count($emailErrs) > 0 || count($phoneErrs) > 0
-            || count($passwordErrs) > 0 || count($password2Errs) > 0)
-        {
-            return ['name' => $nameErrs, 'surname' => $surnameErrs, 'email' => $emailErrs, 'phone' => $phoneErrs,
-                     'password' => $passwordErrs, 'password2' => $password2Errs];
-        }
-        else
-        {
-            return null;
-        }
-
+        return $password2Errs;
     }
 }

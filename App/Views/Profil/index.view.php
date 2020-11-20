@@ -1,3 +1,4 @@
+<?php /** @var $data[] */ ?>
 <title>Profil</title>
 <link rel="stylesheet" href="semestralka/css/main_page.css">
 <link rel="stylesheet" href="semestralka/css/reserve_page.css">
@@ -20,27 +21,27 @@
                 <tbody>
                 <tr>
                     <th>Meno</th>
-                    <td>Michal</td>
+                    <td><?= $_SESSION['user']->getName(); ?></td>
                 </tr>
                 <tr>
                     <th>Priezvisko</th>
-                    <td>Kováčik</td>
+                    <td><?= $_SESSION['user']->getSurname(); ?></td>
                 </tr>
                 <tr>
                     <th>Emailová adresa</th>
-                    <td>kovacik@uniza.sk</td>
+                    <td><?= $_SESSION['user']->getEmail(); ?></td>
                 </tr>
                 <tr>
                     <th>Telefónne číslo</th>
-                    <td>+421 900 000 000</td>
+                    <td><?= $_SESSION['user']->getPhoneFormated(); ?></td>
                 </tr>
                 <tr>
                     <th>Členom od</th>
-                    <td>02.05.2007</td>
+                    <td><?= $_SESSION['user']->getMemberFromFormated(); ?></td>
                 </tr>
                 <tr>
                     <th>Členský poplatok platí do</th>
-                    <td>31.12.2020</td>
+                    <td><?= (is_null($_SESSION['user']->getPaymentFrom()) ? "neuhradené" : $_SESSION['user']->getPaymentFrom());  ?></td>
                 </tr>
                 </tbody>
             </table>
@@ -49,19 +50,45 @@
         <div class="col-md-6 col-sm-12 col-xs-12 mt-4">
             <div class="container d-flex flex-column" id="changePassword">
                 <h2 class="text-left pt-1" id="loginLabel"><i class="fas fa-key"></i> Zmena hesla</h2>
-                <form action="#" id="resetPass">
+                <form action="semestralka?c=Profil" method="post" id="resetPass">
+                    <?php if (!is_null($data) && isset($data['success']) && $data['success'] == true )  { ?>
+                        <div class="alert alert-success" role="alert">
+                            Vaše heslo bolo úspešne zmenené.
+                        </div>
+                    <?php } ?>
                     <div class="form-group">
                         <label for="idHeslo" class="font-weight-bold">Staré heslo</label>
                         <input type="password" class="form-control" id="idHeslo" placeholder="Staré heslo" name="oldPassword">
                     </div>
+                    <?php if (!is_null($data) && isset($data['oldPassword'])) {
+                        foreach ($data['oldPassword'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php }
+                    }?>
                     <div class="form-group">
                         <label for="idNoveHeslo" class="font-weight-bold">Nové heslo</label>
                         <input type="password" class="form-control" id="idNoveHeslo" placeholder="Nové heslo" name="newPassword">
                     </div>
+                    <?php if (!is_null($data) && isset($data['newPassword'])) {
+                        foreach ($data['newPassword'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php }
+                    }?>
                     <div class="form-group">
                         <label for="idNoveHeslo2" class="font-weight-bold">Zopakujte nové heslo</label>
                         <input type="password" class="form-control" id="idNoveHeslo2" placeholder="Nové heslo" name="newPassword2">
                     </div>
+                    <?php if (!is_null($data) && isset($data['newPassword2'])) {
+                        foreach ($data['newPassword2'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php }
+                    }?>
                 </form>
                 <button type="submit" form="resetPass" class="mt-auto btn btn-lg btn-block btn-dark">Zmeniť heslo</button>
             </div>

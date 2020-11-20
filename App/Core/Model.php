@@ -210,6 +210,33 @@ abstract class Model
         }
     }
 
+    public function update()
+    {
+        self::connect();
+        try
+        {
+            $data = array_fill_keys(self::getDbColumns(), null);
+            foreach ($data as $key => &$item)
+                $item = $this->$key;
+
+            if (self::containsKey($data[self::getPKColumnName()]))
+            {
+                $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
+                $columns = implode(',', $arrColumns);
+                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE " . self::getPKColumnName() . " =:" . self::getPKColumnName();
+                self::$db->prepare($sql)->execute($data);
+                return $data[self::getPKColumnName()];
+            }
+            else
+            {
+                throw new \Exception('Item with this key doesnt exist');
+            }
+        } catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
     /**
      * @param $keyVal
      * @return bool True if key is present in table

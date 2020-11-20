@@ -2,6 +2,7 @@
 
 namespace App\Models;
 use App\Core\Model;
+use DateTime;
 
 class User extends Model
 {
@@ -64,6 +65,19 @@ class User extends Model
         return $this->phone;
     }
 
+    public function getPhoneFormated()
+    {
+        $res = "+";
+        for ($i = 0; $i < strlen($this->phone); $i++)
+        {
+            if ($i % 3 == 0 && $i != 0)
+                $res .= " ";
+
+            $res .= $this->phone[$i];
+        }
+        return $res;
+    }
+
     public function getPassword()
     {
         return $this->password;
@@ -72,6 +86,12 @@ class User extends Model
     public function getMemberFrom()
     {
         return $this->member_from;
+    }
+
+    public function getMemberFromFormated()
+    {
+        $date = new DateTime($this->member_from);
+        return $date->format('d.m.Y');
     }
 
     public function getPaymentFrom()
