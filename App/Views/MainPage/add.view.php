@@ -17,7 +17,7 @@
             <div class="card-body">
                 <div class="card-title form-group">
                     <label for="idTitle" class="font-weight-bold">Nadpis</label>
-                    <input type="text" class="form-control outlineButton" id="idTitle" name="title" placeholder="Nadpis novinky" value="<?= is_null($data) ? "" : $data['data']['title'] ?>">
+                    <input type="text" class="form-control outlineButton colorBlack" id="idTitle" name="title" placeholder="Nadpis novinky" value="<?= is_null($data) ? "" : $data['data']['title'] ?>">
                 </div>
                 <?php if (!is_null($data) && isset($data['errors']['title'])) {
                     foreach ($data['errors']['title'] as $e) { ?>
@@ -28,7 +28,7 @@
                 }?>
                 <p class="card-text">
                     <label for="idText" class="font-weight-bold">Text</label>
-                    <textarea class="form-control outlineButton" name="text" id="idText" cols="50" rows="10" placeholder="Sem napiste text novinky"><?= is_null($data) ? "" : $data['data']['text'] ?></textarea>
+                    <textarea class="form-control outlineButton colorBlack" name="text" id="idText" cols="50" rows="10" placeholder="Sem napiste text novinky"><?= is_null($data) ? "" : $data['data']['text'] ?></textarea>
                 </p>
                 <?php if (!is_null($data) && isset($data['errors']['text'])) {
                     foreach ($data['errors']['text'] as $e) { ?>
