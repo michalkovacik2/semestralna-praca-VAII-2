@@ -8,10 +8,9 @@ class ProfilController extends AControllerBase
     private const MIN_PASSWORD_LENGTH = 8;
     public function index()
     {
-        session_start();
-        if (!isset($_SESSION['user']))
+        if (!$this->app->getAuth()->isLogged())
         {
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
 
         if (isset($_POST['oldPassword']) || isset($_POST['newPassword']) || isset($_POST['newPassword2']))

@@ -6,6 +6,7 @@
     <th>Cena</th>
     <th>Pridaj</th>
 </tr>
+<tr>
 <td>
     <input type="text" class="form-control outlineButton" id="idName" name="name" placeholder="Názov poplatku" value="<?= is_null($data) ? "" : $data['data']['name'] ?>">
     <?php if (!is_null($data) && isset($data['errors']['name'])) {

@@ -12,7 +12,6 @@
             <div class="navbar-nav">
                 <a href="semestralka?c=About" class="nav-item nav-link active">O knižnici</a>
                 <a href="semestralka?c=Price" class="nav-item nav-link">Cenník</a>
-                <a href="#" class="nav-item nav-link">Kontakt</a>
                 <a href="semestralka?c=Reserve" class="nav-item nav-link">Rezervuj si knihu</a>
 
                 <?php if ($auth->isLogged()) { ?>

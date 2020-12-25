@@ -21,11 +21,12 @@
         <form action="semestralka?c=Price&a=edit&id=<?= $data['data']['id']; ?>" method="post" enctype="multipart/form-data">
             <table class="table" id="priceTableDisabled">
                 <?php include "Common/form.view.php"; ?>
-                <td>
-                    <button type="submit" class="container-fluid tableButton">Upraviť</button>
-                </td>
+                    <td>
+                        <button type="submit" class="container-fluid tableButton">Upraviť</button>
+                    </td>
                 </tr>
             </table>
+        </form>
     </div>
 </div>
 

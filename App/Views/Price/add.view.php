@@ -19,13 +19,14 @@
 <div class="container mt-5">
     <div class="table-responsive">
         <form action="semestralka?c=Price&a=add" method="post" enctype="multipart/form-data">
-        <table class="table" id="priceTableDisabled">
-            <?php include "Common/form.view.php"; ?>
-                <td>
-                    <button type="submit" class="container-fluid tableButton">Pridať</button>
-                </td>
-            </tr>
-        </table>
+            <table class="table" id="priceTableDisabled">
+                <?php include "Common/form.view.php"; ?>
+                    <td>
+                        <button type="submit" class="container-fluid tableButton">Pridať</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
     </div>
 </div>
 
