@@ -25,4 +25,5 @@ abstract class AAuthenticator
 
     abstract function isLogged();
 
+    abstract function hasPrivileges();
 }

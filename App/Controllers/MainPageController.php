@@ -32,7 +32,7 @@ class MainPageController extends AControllerBase
 
     public function add()
     {
-        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
             $this->redirect("?c=MainPage");
         }
@@ -68,25 +68,26 @@ class MainPageController extends AControllerBase
 
     public function delete()
     {
-        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
             $this->redirect("?c=MainPage");
         }
 
-        if (isset($_GET['id']))
+        $getData = $this->app->getRequest()->getGet();
+        if (isset($getData['id']))
         {
             $news = null;
             try
             {
-                $news = News::getOne($_GET['id']);
+                $news = News::getOne($getData['id']);
             }
             catch (KeyNotFoundException $ex)
             {
                 $this->redirect("?c=MainPage");
             }
 
-            $actualPage = $_GET['page'];
-            $numElements = $_GET['numElements'];
+            $actualPage = $getData['page'];
+            $numElements = $getData['numElements'];
 
             $news->delete();
             if ($numElements > 1)
@@ -104,7 +105,7 @@ class MainPageController extends AControllerBase
 
     public function edit()
     {
-        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
             $this->redirect("?c=MainPage");
         }

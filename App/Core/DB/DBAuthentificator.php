@@ -82,4 +82,9 @@ class DBAuthentificator extends AAuthenticator
     {
         return isset($_SESSION['user']) && $_SESSION['user'] != null;
     }
+
+    function hasPrivileges()
+    {
+        return $this->getLoggedUser()->getPermissions() == 'A';
+    }
 }

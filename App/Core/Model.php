@@ -85,15 +85,11 @@ abstract class Model implements JsonSerializable
      * @return static[]
      * @throws \Exception
      */
-    static public function getAll(string $whereClause = '', array $whereParams = [], $orderBy = '')
+    static public function getAll(string $whereClause = '')
     {
         self::connect();
         try {
-            $sql = "SELECT * FROM " . self::getTableName() . ($whereClause=='' ? '' : " WHERE $whereClause") . ($orderBy == '' ? '' : " ORDER BY $orderBy");
-
-            $stmt = self::$connection->prepare($sql);
-            $stmt->execute($whereParams);
-
+            $stmt = self::$connection->query("SELECT * FROM " . self::getTableName());
             $dbModels = $stmt->fetchAll();
             $models = [];
             foreach ($dbModels as $model) {
@@ -251,6 +247,41 @@ abstract class Model implements JsonSerializable
                 throw new \Exception('Item with this key doesnt exist');
             }
         } catch (PDOException $e)
+        {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $orderByCol
+     * @param $desc bool
+     * @return array
+     * @throws \Exception
+     */
+    static public function getAllOrderBy($orderByCol, $desc)
+    {
+        $order = $desc === true ? 'DESC' : 'ASC';
+        self::connect();
+        try
+        {
+            $sql = "SELECT * FROM " . self::getTableName() . " ORDER BY :colOrder ". $order;
+            $stmt = self::$connection->prepare($sql);
+            $stmt->bindValue(':colOrder', (int) $orderByCol, PDO::PARAM_INT);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model)
+            {
+                $tmpModel = new static();
+                $data = array_fill_keys(self::getDbColumns(), null);
+                foreach ($data as $key => $item) {
+                    $tmpModel->$key = $model[$key];
+                }
+                $models[] = $tmpModel;
+            }
+            return $models;
+        }
+        catch (PDOException $e)
         {
             throw new \Exception('Query failed: ' . $e->getMessage());
         }

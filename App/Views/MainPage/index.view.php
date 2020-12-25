@@ -17,7 +17,8 @@
     <h1 class="display-3" id="novinky"> Novinky </h1>
 </div>
 
-<?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
+<?php /** @var \App\Core\AAuthenticator $auth */ ?>
+<?php if ($auth->isLogged() && $auth->hasPrivileges()) { ?>
     <div class="container">
         <h4><a href="semestralka?c=MainPage&a=add" class="adminControls"> <i class="fas fa-plus"></i> Pridaj novú </a></h4>
     </div>
@@ -26,7 +27,6 @@
 <div class="container infoCards">
     <div class="row">
         <?php /** @var \App\Models\News[] $data */ ?>
-        <?php /** @var \App\Core\AAuthenticator $auth */ ?>
         <?php foreach ($data['news'] as $info) { ?>
             <?php /** @var \App\Models\News $info */ ?>
             <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
@@ -39,7 +39,7 @@
                         </p>
                     </div>
                     <footer>
-                        <?php if ($auth->isLogged() && $auth->getLoggedUser()->getPermissions() == 'A' ) { ?>
+                        <?php if ($auth->isLogged() && $auth->hasPrivileges() ) { ?>
                             <span class="float-left m-2">
                                 <a href="semestralka?c=MainPage&a=edit&id=<?= $info->getId(); ?>&page=<?= $_GET['page']; ?>" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
                                 <span class="adminControls" data-toggle="modal" data-target="#myModal<?= $info->getId(); ?>"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </span>

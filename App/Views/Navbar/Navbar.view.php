@@ -1,3 +1,4 @@
+<?php /** @var \App\Core\AAuthenticator $auth */ ?>
 <div class="container">
     <nav class="navbar navbar-expand-md myNavbar">
         <a href="semestralka?c=MainPage" class="navbar-brand">
@@ -14,12 +15,12 @@
                 <a href="#" class="nav-item nav-link">Kontakt</a>
                 <a href="semestralka?c=Reserve" class="nav-item nav-link">Rezervuj si knihu</a>
 
-                <?php if (isset($_SESSION['user'])) { ?>
+                <?php if ($auth->isLogged()) { ?>
                     <a href="semestralka?c=Profil" class="nav-item nav-link"> <i class="fas fa-user"></i> Profil </a>
                 <?php } ?>
             </div>
             <div class="navbar-nav ml-auto">
-                <?php if (isset($_SESSION['user'])) { ?>
+                <?php if ($auth->isLogged()) { ?>
                     <a href="semestralka?c=MainPage&a=logout" class="nav-item nav-link">Odhlásiť sa</a>
                 <?php } else { ?>
                     <a href="semestralka?c=Login" class="nav-item nav-link">Prihlásenie / Registrácia</a>
