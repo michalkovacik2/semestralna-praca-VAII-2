@@ -26,10 +26,9 @@
 <div class="container infoCards">
     <div class="row">
         <?php /** @var \App\Models\News[] $data */ ?>
-        <?php if (is_null($data)) { ?>
-            <h4> Stranka neexistuje </h4>
-        <?php } else { ?>
+        <?php /** @var \App\Core\AAuthenticator $auth */ ?>
         <?php foreach ($data['news'] as $info) { ?>
+            <?php /** @var \App\Models\News $info */ ?>
             <div class="col-md-6 col-sm-12 col-xs-12 mb-4">
                 <div class="card">
                     <img src="data:image/png;base64,<?= $info->getPicture() ?>" class="card-img-top" alt="obrazok pre novinky">
@@ -40,9 +39,9 @@
                         </p>
                     </div>
                     <footer>
-                        <?php if (isset($_SESSION['user']) && $_SESSION['user']->getPermissions() == 'A' ) { ?>
+                        <?php if ($auth->isLogged() && $auth->getLoggedUser()->getPermissions() == 'A' ) { ?>
                             <span class="float-left m-2">
-                                <a href="semestralka?c=MainPage&a=edit&id=<?= $info->getId(); ?>" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
+                                <a href="semestralka?c=MainPage&a=edit&id=<?= $info->getId(); ?>&page=<?= $_GET['page']; ?>" class="adminControls"> <i class="fas fa-pen ml-2"></i> <span class="hideWhenSmall">Upraviť</span> </a>
                                 <span class="adminControls" data-toggle="modal" data-target="#myModal<?= $info->getId(); ?>"> <i class="fas fa-trash ml-2"></i> <span class="hideWhenSmall">Vymazať</span> </span>
                             </span>
 
@@ -68,12 +67,12 @@
                             </div>
                         <?php } ?>
                         <small class="text-muted float-right m-2">
-                            <time datetime="<?= $info->getCreationDate() ?>"><?= $info->getCreationDate() ?></time>
+                            <time datetime="<?= $info->getCreationDate() ?>"><?= $info->getCreationDateFormated() ?></time>
                         </small>
                     </footer>
                 </div>
             </div>
-        <?php }} ?>
+        <?php } ?>
 
 
     </div>
@@ -82,40 +81,7 @@
 <nav aria-label="Hladanie medzi novinkami">
     <ul class="pagination justify-content-center">
         <?php if (!is_null($data)) { ?>
-            <?php if ($_GET['page'] <= 1) { ?>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                </li>
-            <?php } else { ?>
-                <li class="page-item">
-                    <a class="page-link" href="semestralka?c=MainPage&page=<?= $_GET['page'] - 1 ?>">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                </li>
-            <?php } ?>
-
-            <?php for ($i=1; $i <= $data['numberOfNews']; $i++) { ?>
-                <li class="page-item">
-                    <a class="page-link" href="semestralka?c=MainPage&page=<?= $i ?>">
-                        <?= $i ?>
-                    </a>
-                </li>
-            <?php } ?>
-
-            <?php if ($_GET['page'] >= ($data['numberOfNews'])) { ?>
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </li>
-            <?php } else { ?>
-                <li class="page-item">
-                    <a class="page-link" href="semestralka?c=MainPage&page=<?= $_GET['page'] + 1 ?>">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </li>
-        <?php }} ?>
+            <?= $data['paginator']->getLayout($_GET['page']) ?>
+        <?php }?>
     </ul>
 </nav>

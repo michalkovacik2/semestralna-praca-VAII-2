@@ -3,67 +3,51 @@
 namespace App\Controllers;
 use App\Core\AControllerBase;
 use App\Core\KeyNotFoundException;
+use App\Core\Paginator;
 use App\Models\News;
 
 class MainPageController extends AControllerBase
 {
     private const NEWS_PER_PAGE = 4;
-    private const MAX_TITLE_LEN = 30;
-    private const MAX_FILE_SIZE = 14000000;
+    private $paginator;
 
     public function index()
     {
-        $numRows = News::getNumberOfRows();
-        $numSites = intdiv($numRows, self::NEWS_PER_PAGE);
-        $numSites = $numRows % self::NEWS_PER_PAGE != 0 ? $numSites + 1 : $numSites;
+        $this->paginator = new Paginator(self::NEWS_PER_PAGE, News::getNumberOfRows(), "semestralka?c=MainPage&page=");
 
-        if (!isset($_GET['page']))
+        $page = !isset($_GET['page']) ? $_GET['page'] = 1 : $_GET['page'];
+        $news = $this->paginator->getData($page, News::class, 5);
+        if (is_null($news))
         {
-            $_GET['page'] = 1;
-            return [ 'news' => News::getFromOrderBy(0, self::NEWS_PER_PAGE, 5),
-                'numberOfNews' => $numSites ];
+            $this->redirect("?c=NotFound");
         }
-        else
-        {
-            if ($_GET['page'] - 1 < 0 || $_GET['page'] > $numSites)
-            {
-                return null;
-            }
-            return [ 'news' => News::getFromOrderBy(($_GET['page'] - 1) * self::NEWS_PER_PAGE, self::NEWS_PER_PAGE, 5),
-                'numberOfNews' => $numSites ];
-        }
-
+        return $this->html([ 'news' => $news, 'paginator' => $this->paginator ]);
     }
 
     public function logout()
     {
-        $_SESSION[] = array();
-        if(ini_get("session.use_cookies"))
-        {
-            $p = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
-        }
-        session_destroy();
-        $this->redirectTo("MainPage");
+        $this->app->getAuth()->logout();
+        $this->redirect("?c=MainPage");
     }
 
     public function add()
     {
-        session_start();
-        if (!isset($_SESSION['user']) || $_SESSION['user']->getPermissions() != 'A' )
+        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
         {
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
 
-        if (!isset($_POST['title']) && !isset($_POST['text']))
+        $postData = $this->app->getRequest()->getPost();
+        if (empty($postData))
         {
-            return null;
+            return $this->html(null);
         }
 
+        $filesData = $this->app->getRequest()->getFiles();
+        $file = $filesData['file'];
+        $title = $postData['title'];
+        $text = $postData['text'];
 
-        $file = $_FILES['file'];
-        $title = $_POST['title'];
-        $text = $_POST['text'];
         $res = $this->validate($title, $text, $file);
         if(is_null($res))
         {
@@ -72,22 +56,21 @@ class MainPageController extends AControllerBase
             $text = htmlspecialchars($text);
             $u = new News($title, $text, $image64, date('Y-m-d H:i:s'), $_SESSION['user']->getEmail());
             $u->save();
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
         else
         {
-            return ['data'   => ['title' => $title, 'text' => $text, 'file' => $file],
-                'errors' => $res];
+            return $this->html(['data'   => ['title' => $title, 'text' => $text, 'file' => $file],
+                                'errors' => $res]);
         }
-        return null;
+        return $this->html(null);
     }
 
     public function delete()
     {
-        session_start();
-        if (!isset($_SESSION['user']) || $_SESSION['user']->getPermissions() != 'A' )
+        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
         {
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
 
         if (isset($_GET['id']))
@@ -99,7 +82,7 @@ class MainPageController extends AControllerBase
             }
             catch (KeyNotFoundException $ex)
             {
-                $this->redirectTo("MainPage");
+                $this->redirect("?c=MainPage");
             }
 
             $actualPage = $_GET['page'];
@@ -108,53 +91,54 @@ class MainPageController extends AControllerBase
             $news->delete();
             if ($numElements > 1)
             {
-                $this->redirectTo("MainPage&page=". $actualPage);
+                $this->redirect("?c=MainPage&page=". $actualPage);
             }
             else
             {
                 $actualPage = ($actualPage == 1 ? 1 : $actualPage - 1);
-                $this->redirectTo("MainPage&page=". $actualPage);
+                $this->redirect("?c=MainPage&page=". $actualPage);
             }
         }
-        $this->redirectTo("MainPage");
-        die();
+        $this->redirect("?c=MainPage");
     }
 
     public function edit()
     {
-        session_start();
-        if (!isset($_SESSION['user']) || $_SESSION['user']->getPermissions() != 'A' )
+        if (!$this->app->getAuth()->isLogged() || $this->app->getAuth()->getLoggedUser()->getPermissions() !== 'A')
         {
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
 
-        if (!isset($_GET['id']))
+        $postData = $this->app->getRequest()->getPost();
+        $getData = $this->app->getRequest()->getGet();
+        if (!isset($getData['id']))
         {
-            $this->redirectTo("MainPage");
+            return $this->html("?c=MainPage");
         }
 
         $news = null;
         $errs = null;
         try
         {
-            $news = News::getOne($_GET['id']);
+            $news = News::getOne($getData['id']);
         }
         catch (KeyNotFoundException $ex)
         {
-            $this->redirectTo("MainPage");
+            $this->redirect("?c=MainPage");
         }
 
+        $filesData = $this->app->getRequest()->getFiles();
         //Bola vykonana zmena uzivatelom
-        if (isset($_POST['title']) || isset($_POST['text']))
+        if (isset($postData['title']) || isset($postData['text']))
         {
-            $news->setTitle(htmlspecialchars($_POST['title']));
-            $news->setText(htmlspecialchars($_POST['text']));
-            $titleErr = $this->validateTitle($news->getTitle());
-            $textErr = $this->validateText($news->getText());
+            $news->setTitle(htmlspecialchars($postData['title']));
+            $news->setText(htmlspecialchars($postData['text']));
+            $titleErr = News::checkTitle($news->getTitle());
+            $textErr = News::checkText($news->getText());
             $fileErr = [];
-            if (isset($_FILES['file']) && $_FILES['file']['size'] != 0)
+            if (isset($filesData['file']) && $filesData['file']['size'] != 0)
             {
-                $fileErr = $this->validateFile($_FILES['file']);
+                $fileErr = News::checkFile($filesData['file']);
             }
 
             if (count($titleErr) > 0 || count($textErr) > 0 || count($fileErr) > 0)
@@ -163,24 +147,27 @@ class MainPageController extends AControllerBase
             }
             else
             {
-                if ($_FILES['file']['size'] != 0)
-                    $news->setPicture(base64_encode(file_get_contents($_FILES['file']['tmp_name'])));
+                if ($filesData['file']['size'] != 0)
+                    $news->setPicture(base64_encode(file_get_contents($filesData['file']['tmp_name'])));
 
                 //$news->setCreationDate(date('Y-m-d H:i:s'));
-                $news->setEmail($_SESSION['user']->getEmail());
+                $news->setEmail($this->app->getAuth()->getLoggedUser()->getEmail());
                 $news->save();
-                $this->redirectTo("MainPage");
+                $this->redirect("?c=MainPage&page=". $_SESSION['page']);
             }
         }
 
-        return ['data' => $news, 'errors' => $errs];
+        if (isset($getData['page']))
+            $_SESSION['page'] = $getData['page'];
+
+        return $this->html(['data' => $news, 'errors' => $errs]);
     }
 
     private function validate($title, $text, $file)
     {
-        $titleErrs = $this->validateTitle($title);
-        $textErrs = $this->validateText($text);
-        $fileErrs = $this->validateFile($file);
+        $titleErrs = News::checkTitle($title);
+        $textErrs = News::checkText($text);
+        $fileErrs = News::checkFile($file);
 
         if (count($titleErrs) > 0 || count($textErrs) > 0 || count($fileErrs) > 0)
         {
@@ -188,83 +175,6 @@ class MainPageController extends AControllerBase
         }
 
         return null;
-    }
-
-    private function validateText($text)
-    {
-        $textErrs = [];
-        if (empty($text))
-        {
-            $textErrs[] = 'Prosim zadajte text';
-        }
-        return $textErrs;
-    }
-
-    private function validateTitle($title)
-    {
-        $titleErrs = [];
-        if (empty($title))
-        {
-            $titleErrs[] = 'Prosim zadajte nadpis';
-        }
-        else
-        {
-            if (strlen($title) > self::MAX_TITLE_LEN)
-            {
-                $titleErrs[] = 'Nadpis moze mat maximalne 30 znakov';
-            }
-        }
-        return $titleErrs;
-    }
-
-    private function validateFile($file)
-    {
-        $fileErrs = [];
-        if (!isset($file['error']))
-        {
-            $fileErrs[] = 'Prosim nahrajte obrazok';
-            return $fileErrs;
-        }
-        else
-        {
-            if (is_array($file['error']))
-            {
-                $fileErrs[] = 'Nahrajte iba jeden subor';
-                return $fileErrs;
-            }
-
-            switch ($file['error'])
-            {
-                case UPLOAD_ERR_OK:
-                    break;
-                case UPLOAD_ERR_NO_FILE:
-                    $fileErrs[] = 'Prosim nahrajte obrazok';
-                    return $fileErrs;
-                case UPLOAD_ERR_INI_SIZE:
-                case UPLOAD_ERR_FORM_SIZE:
-                    $fileErrs[] = 'Obrazok je prilis velky';
-                    return $fileErrs;
-                default:
-                    throw new \RuntimeException('File upload error');
-            }
-
-            $finfo = finfo_open( FILEINFO_MIME_TYPE );
-            $mtype = finfo_file( $finfo, $file['tmp_name'] );
-            finfo_close( $finfo );
-            if ( $mtype != ( "image/png" ) && $mtype != ( "image/jpeg" ))
-            {
-                $fileErrs[] = 'Obrazok musi byt png alebo jpeg';
-                return $fileErrs;
-            }
-
-            $image_base64 = base64_encode(file_get_contents($file['tmp_name']));
-            if(strlen($image_base64) > self::MAX_FILE_SIZE)
-            {
-                $fileErrs[] = 'Obrazok je prilis velky';
-            }
-        }
-
-        return $fileErrs;
     }
 
 }

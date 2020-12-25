@@ -3,9 +3,11 @@
 namespace App\Core;
 
 use App\App;
+use App\Core\DB\Connection;
+use App\Core\KeyNotFoundException;
+use JsonSerializable;
 use PDO;
 use PDOException;
-use App\Core\KeyNotFoundException;
 
 /**
  * Class Model
@@ -13,14 +15,18 @@ use App\Core\KeyNotFoundException;
  * Allows basic CRUD operations
  * @package App\Core\Storage
  */
-abstract class Model
+abstract class Model implements JsonSerializable
 {
-    private static $db = null;
+    private static $connection = null;
 
     abstract static public function setDbColumns();
     abstract static public function setPrimaryKeyColumnName();
     abstract static public function setTableName();
 
+    /**
+     * Gets the name of primary key
+     * @return mixed
+     */
     private static function getPKColumnName()
     {
         return static::setPrimaryKeyColumnName();
@@ -45,40 +51,49 @@ abstract class Model
     }
 
     /**
-     * Creates a new connection to DB, if connection already exists, returns the existing one
+     * Gets DB connection for other model methods
+     * @return null
+     * @throws \Exception
      */
     private static function connect()
     {
-        $config = App::getConfig();
-        try {
-            if (self::$db == null) {
-                self::$db = new PDO('mysql:dbname=' . $config::DB_NAME . ';host=' . $config::DB_HOST, $config::DB_USER, $config::DB_PASS);
-                self::$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            }
-        } catch (PDOException $e) {
-            throw new \Exception('Connection failed: ' . $e->getMessage());
-        }
+        self::$connection = Connection::connect();
     }
 
     /**
-     * Gets DB connection for additional model methods
+     * Gets the connection
      * @return null
      */
-    protected static function getConnection() : PDO
+    public static function getConnection()
     {
-        self::connect();
-        return self::$db;
+        return self::$connection;
+    }
+
+    /**
+     * Default implementation of JSON serialize method
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
     }
 
     /**
      * Return an array of models from DB
+     * @param string $whereClause Additional where Statement
+     * @param array $whereParams Parameters for where
      * @return static[]
+     * @throws \Exception
      */
-    static public function getAll()
+    static public function getAll(string $whereClause = '', array $whereParams = [], $orderBy = '')
     {
         self::connect();
         try {
-            $stmt = self::$db->query("SELECT * FROM " . self::getTableName());
+            $sql = "SELECT * FROM " . self::getTableName() . ($whereClause=='' ? '' : " WHERE $whereClause") . ($orderBy == '' ? '' : " ORDER BY $orderBy");
+
+            $stmt = self::$connection->prepare($sql);
+            $stmt->execute($whereParams);
+
             $dbModels = $stmt->fetchAll();
             $models = [];
             foreach ($dbModels as $model) {
@@ -98,6 +113,8 @@ abstract class Model
     /**
      * Gets one model by primary key
      * @param $id
+     * @return Model
+     * @throws KeyNotFoundException
      * @throws \Exception
      */
     static public function getOne($id)
@@ -105,7 +122,7 @@ abstract class Model
         self::connect();
         try {
             $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :id";
-            $stmt = self::$db->prepare($sql);
+            $stmt = self::$connection->prepare($sql);
             $stmt->execute(['id' => $id]);
             $model = $stmt->fetch();
             if ($model) {
@@ -134,20 +151,22 @@ abstract class Model
         try {
             $data = array_fill_keys(self::getDbColumns(), null);
             foreach ($data as $key => &$item) {
-                $item = $this->$key;
+                $item = isset($this->$key) ? $this->$key : null;
             }
             if ($data[self::getPKColumnName()] == null) {
                 $arrColumns = array_map(fn($item) => (':' . $item), array_keys($data));
                 $columns = implode(',', array_keys($data));
                 $params = implode(',', $arrColumns);
                 $sql = "INSERT INTO " . self::getTableName() . " ($columns) VALUES ($params)";
-                self::$db->prepare($sql)->execute($data);
-                return self::$db->lastInsertId();
+                $stmt = self::$connection->prepare($sql);
+                $stmt->execute($data);
+                return self::$connection->lastInsertId();
             } else {
                 $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
                 $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE id=:" . self::getPKColumnName();
-                self::$db->prepare($sql)->execute($data);
+                $stmt = self::$connection->prepare($sql);
+                $stmt->execute($data);
                 return $data[self::getPKColumnName()];
             }
         } catch (PDOException $e) {
@@ -167,7 +186,7 @@ abstract class Model
         self::connect();
         try {
             $sql = "DELETE FROM " . self::getTableName() . " WHERE id=?";
-            $stmt = self::$db->prepare($sql);
+            $stmt = self::$connection->prepare($sql);
             $stmt->execute([$this->{self::getPKColumnName()}]);
             if ($stmt->rowCount() == 0) {
                 throw new \Exception('Model not found!');
@@ -197,7 +216,7 @@ abstract class Model
                 $columns = implode(',', array_keys($data));
                 $params = implode(',', $arrColumns);
                 $sql = "INSERT INTO " . self::getTableName() . " ($columns) VALUES ($params)";
-                self::$db->prepare($sql)->execute($data);
+                self::$connection->prepare($sql)->execute($data);
                 return true;
             }
             else
@@ -224,7 +243,7 @@ abstract class Model
                 $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
                 $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE " . self::getPKColumnName() . " =:" . self::getPKColumnName();
-                self::$db->prepare($sql)->execute($data);
+                self::$connection->prepare($sql)->execute($data);
                 return $data[self::getPKColumnName()];
             }
             else
@@ -248,7 +267,7 @@ abstract class Model
         try
         {
             $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :key";
-            $stmt = self::$db->prepare($sql);
+            $stmt = self::$connection->prepare($sql);
             $stmt->execute(['key' => $keyVal]);
             return (!$stmt->fetch() ? false : true);
         }
@@ -270,7 +289,7 @@ abstract class Model
         try
         {
             $sql = "SELECT * FROM " . self::getTableName() . " LIMIT :limit, :len";
-            $stmt = self::$db->prepare($sql);
+            $stmt = self::$connection->prepare($sql);
             $stmt->bindValue(':limit', (int) $from, PDO::PARAM_INT);
             $stmt->bindValue(':len', (int) $len, PDO::PARAM_INT);
             $stmt->execute();
@@ -306,7 +325,7 @@ abstract class Model
         try
         {
             $sql = "SELECT * FROM " . self::getTableName() . " ORDER BY :colOrder DESC LIMIT :limit, :len";
-            $stmt = self::$db->prepare($sql);
+            $stmt = self::$connection->prepare($sql);
             $stmt->bindValue(':colOrder', (int) $orderByCol, PDO::PARAM_INT);
             $stmt->bindValue(':limit', (int) $from, PDO::PARAM_INT);
             $stmt->bindValue(':len', (int) $len, PDO::PARAM_INT);
@@ -336,7 +355,7 @@ abstract class Model
         try
         {
             $sql = "SELECT COUNT(" . self::getPKColumnName() .") FROM " . self::getTableName();
-            $stmt = self::$db->query($sql);
+            $stmt = self::$connection->query($sql);
             $res = $stmt->fetch();
             return intval($res[0]);
         }

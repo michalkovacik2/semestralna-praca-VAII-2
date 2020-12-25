@@ -1,3 +1,4 @@
+<?php /** @var string $contentHTML */ ?>
 <!DOCTYPE html>
 <html lang="sk">
 <head>
@@ -7,7 +8,7 @@
     <link href="semestralka/fontawesome-free-5.15.1-web/css/fontawesome.css" rel="stylesheet">
     <link href="semestralka/fontawesome-free-5.15.1-web/css/brands.css" rel="stylesheet">
     <link href="semestralka/fontawesome-free-5.15.1-web/css/solid.css" rel="stylesheet">
-    <link rel="icon" href="semestralka/img/favicon.ico" type="image/x-icon" >
+    <link rel="icon" href="semestralka/img/favicon.ico" type="image/x-icon">
 
     <?= $contentHTML ?>
 

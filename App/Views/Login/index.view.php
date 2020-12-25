@@ -22,11 +22,11 @@
                 <form action="semestralka?c=Login" class="mt-0 ml-5 mr-5 mb-2" method="post">
                     <div class="form-group">
                         <label for="idEmail" class="font-weight-bold">Email</label>
-                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email" value="<?= is_null($data) ? "" : $data['email'] ?>">
+                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email" value="<?= is_null($data) || is_null($data['email']) ? "" : $data['email'] ?>" required>
                     </div>
                     <div class="form-group">
                         <label for="idHeslo" class="font-weight-bold">Heslo</label>
-                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password" value="<?= is_null($data) ? "" : $data['password'] ?>">
+                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password" value="<?= is_null($data) || is_null($data['password']) ? "" : $data['password'] ?>" required>
                     </div>
                     <?php if (!is_null($data)) { ?>
                         <div class="alert alert-danger" role="alert">

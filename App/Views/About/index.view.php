@@ -63,7 +63,7 @@
     <h1>Súčasnosť</h1>
 
     <p>
-        V súčasnosti je naša knižnica najstaršou verejnou knižnicou na Slovensku.
+        V súčasnosti je naša knižnica <strong>najstaršou verejnou knižnicou na Slovensku</strong>.
         Má pôsobnosť pre okresy Liptovský Mikuláš a Ružomberok, svoju činnosť poskytuje v dvoch hlavných objektoch
         a troch pobočkách na území Mesta Liptovský Mikuláš.
     </p>

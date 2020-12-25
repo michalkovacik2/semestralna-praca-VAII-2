@@ -2,45 +2,29 @@
 
 namespace App\Controllers;
 use App\Core\AControllerBase;
-use App\Core\KeyNotFoundException;
-use App\Models\User;
-
 
 class LoginController extends AControllerBase
 {
     public function index()
     {
-        if (!isset($_POST['email']) && !isset($_POST['password']))
-            return null;
+        $postData = $this->app->getRequest()->getPost();
 
-        try
+        if ($this->app->getAuth()->isLogged())
         {
-            $user = User::getOne($_POST['email']);
-        }
-        catch (KeyNotFoundException $e)
-        {
-            return ['email' => $_POST['email'], 'password' => $_POST['password']];
+            $this->redirect("?c=MainPage");
         }
 
-        if ($this->passwordCorrect($user, $_POST['password']))
+        if (empty($postData))
         {
-            session_start();
-            $_SESSION['user'] = $user;
-            $this->redirectTo("MainPage");
+            return $this->html(null);
         }
 
-        return ['email' => $_POST['email'], 'password' => $_POST['password']];
+        if ($this->app->getAuth()->login($postData['email'], $postData['password']))
+        {
+            $this->redirect('?c=MainPage');
+        }
 
+        return $this->html(['email' => $_POST['email'], 'password' => null]);
     }
 
-    /**
-     * @param User $user
-     * @param $enteredPassword
-     * @return mixed
-     */
-    private function passwordCorrect($user, $enteredPassword)
-    {
-        $hashedPassword = hash('sha256', $enteredPassword);
-        return hash_equals($user->getPassword(), $hashedPassword);
-    }
 }
