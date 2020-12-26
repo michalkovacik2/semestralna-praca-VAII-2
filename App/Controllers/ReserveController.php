@@ -8,6 +8,6 @@ class ReserveController extends AControllerBase
 
     public function index()
     {
-        return "";
+        return $this->html(null);
     }
 }

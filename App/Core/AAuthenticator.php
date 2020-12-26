@@ -23,6 +23,8 @@ abstract class AAuthenticator
 
     abstract function getLoggedUser(): User;
 
+    abstract function updateLoggedUser();
+
     abstract function isLogged();
 
     abstract function hasPrivileges();

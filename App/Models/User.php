@@ -10,11 +10,13 @@ class User extends Model
     private const MAX_SIZE_SURNAME = 50;
     private const MAX_SIZE_EMAIL = 320;
     private const MIN_PASSWORD_LENGTH = 8;
+    private const MAX_PHONE_LENGTH = 12;
 
     protected $email;
     protected $name;
     protected $surname;
     protected $phone;
+
     protected $password;
     protected $member_from;
     protected $payment_from;
@@ -182,8 +184,11 @@ class User extends Model
             if (preg_match('/[^0-9]/', $phone))
                 $phoneErrs[] = "Číslo musí pozostávať iba z číslic(prípadne +)";
 
-            if(substr($phone, 0, 3) != "421")
+            if (substr($phone, 0, 3) != "421")
                 $phoneErrs[] = "Číslo musí mať formát +421 alebo 421";
+
+            if (strlen($phone) > self::MAX_PHONE_LENGTH)
+                $phoneErrs[] = "Číslo nesmie byť dlhšie ako ". self::MAX_PHONE_LENGTH . " číslic";
         }
         return $phoneErrs;
     }
@@ -289,7 +294,7 @@ class User extends Model
      */
     public function setPassword($password)
     {
-        $this->password = $password;
+        $this->password = password_hash($password, PASSWORD_DEFAULT);;
     }
 
     /**
@@ -298,6 +303,22 @@ class User extends Model
     public function setPaymentFrom($payment_from)
     {
         $this->payment_from = $payment_from;
+    }
+
+    /**
+     * @param $name
+     */
+    public function setName( $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @param $surname
+     */
+    public function setSurname( $surname): void
+    {
+        $this->surname = $surname;
     }
 
     // endregion

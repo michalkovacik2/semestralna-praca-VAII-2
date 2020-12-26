@@ -41,6 +41,14 @@
     border-radius: 0;
 }
 
+.dialogButton {
+    color: #d6701a;
+}
+
+.dialogButton:hover {
+    color: orange;
+}
+
 @media (max-width: 576px) {
     .middlePart {
         border: 1px solid black;

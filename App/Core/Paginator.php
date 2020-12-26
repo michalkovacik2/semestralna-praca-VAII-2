@@ -23,15 +23,15 @@ class Paginator
     /**
      * @param $page int
      * @param $data string
-     * @param $orderBy int
+     * @param $param3
      * @return array
      */
-    public function getData($page, $data, $orderBy)
+    public function getData($page, $data, $param3, $func)
     {
         if ($page <= 0 || $page > $this->numberOfPages)
             return null;
 
-        return $data::getFromOrderBy(($page - 1) * $this->itemsOnePage, $this->itemsOnePage, $orderBy);
+        return $data::$func(($page - 1) * $this->itemsOnePage, $this->itemsOnePage, $param3);
     }
 
     public function getLayout($page) :string

@@ -119,7 +119,7 @@ abstract class Model implements JsonSerializable
         try {
             $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :id";
             $stmt = self::$connection->prepare($sql);
-            $stmt->execute(['id' => $id]);
+            $stmt->execute([':id' => $id]);
             $model = $stmt->fetch();
             if ($model) {
                 $data = array_fill_keys(self::getDbColumns(), null);
@@ -181,7 +181,7 @@ abstract class Model implements JsonSerializable
         }
         self::connect();
         try {
-            $sql = "DELETE FROM " . self::getTableName() . " WHERE id=?";
+            $sql = "DELETE FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ." = ?";
             $stmt = self::$connection->prepare($sql);
             $stmt->execute([$this->{self::getPKColumnName()}]);
             if ($stmt->rowCount() == 0) {
@@ -299,7 +299,7 @@ abstract class Model implements JsonSerializable
         {
             $sql = "SELECT * FROM " . self::getTableName() . " WHERE ". self::getPKColumnName() ."= :key";
             $stmt = self::$connection->prepare($sql);
-            $stmt->execute(['key' => $keyVal]);
+            $stmt->execute([':key' => $keyVal]);
             return (!$stmt->fetch() ? false : true);
         }
         catch (PDOException $e)

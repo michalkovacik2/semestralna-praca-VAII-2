@@ -9,19 +9,18 @@ use App\Models\News;
 class MainPageController extends AControllerBase
 {
     private const NEWS_PER_PAGE = 4;
-    private $paginator;
 
     public function index()
     {
-        $this->paginator = new Paginator(self::NEWS_PER_PAGE, News::getNumberOfRows(), "semestralka?c=MainPage&page=");
+        $paginator = new Paginator(self::NEWS_PER_PAGE, News::getNumberOfRows(), "semestralka?c=MainPage&page=");
 
         $page = !isset($_GET['page']) ? $_GET['page'] = 1 : $_GET['page'];
-        $news = $this->paginator->getData($page, News::class, 5);
+        $news = $paginator->getData($page, News::class, 5, 'getFromOrderBy');
         if (is_null($news))
         {
             $this->redirect("?c=NotFound");
         }
-        return $this->html([ 'news' => $news, 'paginator' => $this->paginator ]);
+        return $this->html([ 'news' => $news, 'paginator' => $paginator ]);
     }
 
     public function logout()

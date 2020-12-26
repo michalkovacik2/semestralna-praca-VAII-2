@@ -87,4 +87,10 @@ class DBAuthentificator extends AAuthenticator
     {
         return $this->getLoggedUser()->getPermissions() == 'A';
     }
+
+    function updateLoggedUser()
+    {
+        $user = User::getOne($this->getLoggedUser()->getEmail());
+        $_SESSION['user'] = $user;
+    }
 }

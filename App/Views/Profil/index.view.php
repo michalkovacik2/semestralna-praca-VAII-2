@@ -1,4 +1,5 @@
 <?php /** @var $data[] */ ?>
+<?php /** @var \App\Core\AAuthenticator $auth */ ?>
 <title>Profil</title>
 <link rel="stylesheet" href="semestralka/css/main_page.css">
 <link rel="stylesheet" href="semestralka/css/reserve_page.css">
@@ -20,28 +21,34 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <th>Meno</th>
-                    <td><?= $_SESSION['user']->getName(); ?></td>
+                    <th>Meno
+                        <span data-toggle="modal" data-target="#myModalName" class="dialogButton"> <i class="fas fa-pen ml-2"></i> </span>
+                    </th>
+                    <td><?= $auth->getLoggedUser()->getName(); ?></td>
                 </tr>
                 <tr>
-                    <th>Priezvisko</th>
-                    <td><?= $_SESSION['user']->getSurname(); ?></td>
+                    <th>Priezvisko
+                        <span data-toggle="modal" data-target="#myModalSurname" class="dialogButton"> <i class="fas fa-pen ml-2"></i> </span>
+                    </th>
+                    <td><?= $auth->getLoggedUser()->getSurname(); ?></td>
                 </tr>
                 <tr>
                     <th>Emailová adresa</th>
-                    <td><?= $_SESSION['user']->getEmail(); ?></td>
+                    <td><?= $auth->getLoggedUser()->getEmail(); ?></td>
                 </tr>
                 <tr>
-                    <th>Telefónne číslo</th>
-                    <td><?= $_SESSION['user']->getPhoneFormated(); ?></td>
+                    <th>Telefónne číslo
+                        <span data-toggle="modal" data-target="#myModalPhone" class="dialogButton"> <i class="fas fa-pen ml-2"></i> </span>
+                    </th>
+                    <td><?= $auth->getLoggedUser()->getPhoneFormated(); ?></td>
                 </tr>
                 <tr>
                     <th>Členom od</th>
-                    <td><?= $_SESSION['user']->getMemberFromFormated(); ?></td>
+                    <td><?= $auth->getLoggedUser()->getMemberFromFormated(); ?></td>
                 </tr>
                 <tr>
                     <th>Členský poplatok platí do</th>
-                    <td><?= (is_null($_SESSION['user']->getPaymentFrom()) ? "neuhradené" : $_SESSION['user']->getPaymentFrom());  ?></td>
+                    <td><?= (is_null($auth->getLoggedUser()->getPaymentFrom()) ? "neuhradené" : $auth->getLoggedUser()->getPaymentFrom());  ?></td>
                 </tr>
                 </tbody>
             </table>
@@ -50,7 +57,7 @@
         <div class="col-md-6 col-sm-12 col-xs-12 mt-4">
             <div class="container d-flex flex-column" id="changePassword">
                 <h2 class="text-left pt-1" id="loginLabel"><i class="fas fa-key"></i> Zmena hesla</h2>
-                <form action="semestralka?c=Profil" method="post" id="resetPass">
+                <form action="semestralka?c=Profil&page=<?= $_GET['page'] ?>" method="post" id="resetPass">
                     <?php if (!is_null($data) && isset($data['success']) && $data['success'] == true )  { ?>
                         <div class="alert alert-success" role="alert">
                             Vaše heslo bolo úspešne zmenené.
@@ -97,6 +104,111 @@
 
 </div>
 
+<div class="modal" id="myModalName">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2 class="modal-title">Zmena mena</h2>
+                <button type="button" class="close" data-dismiss="modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form action="semestralka?c=Profil&page=<?= $_GET['page'] ?>" method="post">
+                <div class="modal-body text-left">
+                    <label for="idMeno" class="font-weight-bold">Zadajte nové meno: </label>
+                    <input type="text" class="form-control" id="idMeno" name="name" placeholder="Meno" value="<?= is_null($data) || !isset($data['data']) ? "" : $data['data']['name']; ?>">
+                    <?php if (isset($data['nameErrors'])) { ?>
+                        <?php foreach ($data['nameErrors'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Zmeniť</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModalSurname">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2 class="modal-title">Zmena priezviska</h2>
+                <button type="button" class="close" data-dismiss="modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form action="semestralka?c=Profil&page=<?= $_GET['page'] ?>" method="post">
+                <div class="modal-body text-left">
+                    <label for="idSurname" class="font-weight-bold">Zadajte nové priezvisko: </label>
+                    <input type="text" class="form-control" id="idSurname" name="surname" placeholder="Priezvisko" value="<?= is_null($data) || !isset($data['data']) ? "" : $data['data']['surname']; ?>">
+                    <?php if (isset($data['surnameErrors'])) { ?>
+                        <?php foreach ($data['surnameErrors'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Zmeniť</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="myModalPhone">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2 class="modal-title">Zmena čísla</h2>
+                <button type="button" class="close" data-dismiss="modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form action="semestralka?c=Profil&page=<?= $_GET['page'] ?>" method="post">
+                <div class="modal-body text-left">
+                    <label for="idPhone" class="font-weight-bold">Zadajte nové číslo: </label>
+                    <input type="text" class="form-control" id="idPhone" name="phone" placeholder="Tel. číslo" value="<?= is_null($data) || !isset($data['data']) ? "" : $data['data']['phone']; ?>">
+                    <?php if (isset($data['phoneErrors'])) { ?>
+                        <?php foreach ($data['phoneErrors'] as $e) { ?>
+                            <div class="alert alert-danger" role="alert">
+                                <?= $e ?>
+                            </div>
+                        <?php } ?>
+                    <?php } ?>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Zmeniť</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php if (isset($data['nameErrors'])) { ?>
+    <script>
+        $(document).ready(function(){ $('#myModalName').modal('show'); });
+    </script>
+<?php } ?>
+
+<?php if (isset($data['surnameErrors'])) { ?>
+    <script>
+        $(document).ready(function(){ $('#myModalSurname').modal('show'); });
+    </script>
+<?php } ?>
+
+<?php if (isset($data['phoneErrors'])) { ?>
+    <script>
+        $(document).ready(function(){ $('#myModalPhone').modal('show'); });
+    </script>
+<?php } ?>
+
 <!-- History -->
 <div class="container mt-5 col-10 col-md-10">
     <div class="row justify-content-center">
@@ -105,221 +217,68 @@
             <h1 class="text-center">Moja história</h1>
         </div>
 
-        <!-- historia 1 -->
-        <div class="jumbotron-fluid bookItem w-100">
+        <?php if (empty($data['history'])) { ?>
             <div class="container">
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                        <img src="semestralka/img/iconBook.png" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
-                        <div class="card middlePart">
-                            <div class="card-body myCard">
-                                <h4>Hlava XXII</h4>
-                                <h6 class="card-subtitle mb-2 text-muted autor">
-                                    Joseph Heller, <time datetime="1994">1994</time>
-                                </h6>
+                <h4 class="text-center">Zatiaľ ste si nič nepožičali</h4>
+            </div>
+        <?php } else { ?>
+        <?php foreach ($data['history'] as $history) { ?>
+            <?php /** @var \App\Models\History $history */ ?>
+            <div class="jumbotron-fluid bookItem w-100">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
+                            <img src="data:image/png;base64,<?= $history->getPicture() ?>" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
+                            <div class="card middlePart">
+                                <div class="card-body myCard">
+                                    <h4> <?= $history->getName() ?> </h4>
+                                    <h6 class="card-subtitle mb-2 text-muted autor">
+                                        <?= $history->getAuthorName()." ".$history->getAuthorSurname() ?>, <time datetime="<?= $history->getReleaseYear() ?>"><?= $history->getReleaseYear() ?></time>
+                                    </h6>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
-                        <div class="card">
-                            <div class="card-body myCard">
-                                <p>
-                                    <strong>Rezervované:</strong> <br>
-                                    <time datetime="2020-10-20">20.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vyzdvihnuté:</strong> <br>
-                                    <time datetime="2020-10-22">22.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vrátené:</strong> <br>
-                                    <time datetime="2020-11-15">15.11.2020</time>
-                                </p>
+                        <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
+                            <div class="card">
+                                <div class="card-body myCard">
+                                    <p>
+                                        <strong>Rezervované:</strong> <br>
+                                        <time datetime="<?= $history->getRequestDate() ?>"><?= $history->getRequestDateFormatted() ?></time>
+                                    </p>
+                                    <p>
+                                        <strong>Vyzdvihnuté:</strong> <br>
+                                        <?php if (is_null($history->getReserveDay())) { ?>
+                                            <span><?= $history->getReserveDayFormatted() ?></span>
+                                        <?php } else { ?>
+                                            <time datetime="<?= $history->getReserveDay() ?>"><?= $history->getReserveDayFormatted() ?></time>
+                                        <?php } ?>
+                                    </p>
+                                    <p>
+                                        <strong>Vrátené:</strong> <br>
+                                        <?php if (is_null($history->getReturnDay())) { ?>
+                                            <span><?= $history->getReturnDayFormatted() ?></span>
+                                        <?php } else { ?>
+                                            <time datetime="<?= $history->getReturnDay() ?>"><?= $history->getReturnDayFormatted() ?></time>
+                                        <?php } ?>
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        <?php }} ?>
 
-        <!-- Historia 2 -->
-        <div class="jumbotron-fluid bookItem w-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                        <img src="semestralka/img/iconBook.png" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
-                        <div class="card middlePart">
-                            <div class="card-body myCard">
-                                <h4>Malý princ</h4>
-                                <h6 class="card-subtitle mb-2 text-muted autor">
-                                    Antoine De Saint-Exupéry, <time datetime="1943">1943</time>
-                                </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
-                        <div class="card">
-                            <div class="card-body myCard">
-                                <p>
-                                    <strong>Rezervované:</strong> <br>
-                                    <time datetime="2020-10-20">20.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vyzdvihnuté:</strong> <br>
-                                    <time datetime="2020-10-22">22.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vrátené:</strong> <br>
-                                    <time datetime="2020-11-15">15.11.2020</time>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Historia 3 -->
-        <div class="jumbotron-fluid bookItem w-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                        <img src="semestralka/img/iconBook.png" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
-                        <div class="card middlePart">
-                            <div class="card-body myCard">
-                                <h4>Harry Potter a Kameň mudrcov</h4>
-                                <h6 class="card-subtitle mb-2 text-muted autor">
-                                    J.K. Rowling, <time datetime="1994">2001</time>
-                                </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
-                        <div class="card">
-                            <div class="card-body myCard">
-                                <p>
-                                    <strong>Rezervované:</strong> <br>
-                                    <time datetime="2020-10-20">20.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vyzdvihnuté:</strong> <br>
-                                    <time datetime="2020-10-22">22.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vrátené:</strong> <br>
-                                    <time datetime="2020-11-15">15.11.2020</time>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Historia 4 -->
-        <div class="jumbotron-fluid bookItem w-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                        <img src="semestralka/img/iconBook.png" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
-                        <div class="card middlePart">
-                            <div class="card-body myCard">
-                                <h4>Na západe nič nové</h4>
-                                <h6 class="card-subtitle mb-2 text-muted autor">
-                                    Erich Maria Remarque, <time datetime="1929">1929</time>
-                                </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
-                        <div class="card">
-                            <div class="card-body myCard">
-                                <p>
-                                    <strong>Rezervované:</strong> <br>
-                                    <time datetime="2020-10-20">20.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vyzdvihnuté:</strong> <br>
-                                    <time datetime="2020-10-22">22.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vrátené:</strong> <br>
-                                    <time datetime="2020-11-15">15.11.2020</time>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Historia 5 -->
-        <div class="jumbotron-fluid bookItem w-100">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                        <img src="semestralka/img/iconBook.png" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
-                        <div class="card middlePart">
-                            <div class="card-body myCard">
-                                <h4>451 stupňov Fahrenheita</h4>
-                                <h6 class="card-subtitle mb-2 text-muted autor">
-                                    Ray Bradbury, <time datetime="2015">2015</time>
-                                </h6>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xs-4 col-sm-4 col-md-4 paddingZero">
-                        <div class="card">
-                            <div class="card-body myCard">
-                                <p>
-                                    <strong>Rezervované:</strong> <br>
-                                    <time datetime="2020-10-20">20.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vyzdvihnuté:</strong> <br>
-                                    <time datetime="2020-10-22">22.10.2020</time>
-                                </p>
-                                <p>
-                                    <strong>Vrátené:</strong> <br>
-                                    <time datetime="2020-11-15">15.11.2020</time>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <?php if (!empty($data['history'])) { ?>
         <nav aria-label="Hladanie v historii">
             <ul class="pagination justify-content-center mt-3">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">
-                        <i class="fas fa-arrow-left"></i>
-                    </a>
-                </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item"><a class="page-link" href="#">5</a></li>
-                <li class="page-item"><a class="page-link" href="#">6</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </li>
+                <?php if (!is_null($data)) { ?>
+                    <?= $data['paginator']->getLayout($_GET['page']) ?>
+                <?php }?>
             </ul>
         </nav>
-
+        <?php } ?>
     </div>
 </div>
