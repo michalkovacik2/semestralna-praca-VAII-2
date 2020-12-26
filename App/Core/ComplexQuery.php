@@ -40,6 +40,30 @@ class ComplexQuery implements JsonSerializable
     }
 
 
+    static public function getGenresCount()
+    {
+        self::connect();
+        try {
+            $columns = implode(',', History::getDBColumns());
+            $sql = "SELECT " . $columns . " from reservation join book b on reservation.book_id = b.book_id join book_info bi on b.ISBN = bi.ISBN where email = :PK order by request_date DESC LIMIT :limit, :len";
+            $stmt = self::$connection->prepare($sql);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model) {
+                $tmpModel = new History();
+                $data = array_fill_keys(History::getDbColumns(), null);
+                foreach ($data as $key => $item) {
+                    $data[$key] = $model[$key];
+                }
+                $tmpModel->setValues($data);
+                $models[] = $tmpModel;
+            }
+            return $models;
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
     /**
      * @param $email
      * @return array
