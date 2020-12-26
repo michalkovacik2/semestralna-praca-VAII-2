@@ -105,7 +105,7 @@
                                 <div class="card-body myCard">
                                     <h4>Hlava XXII</h4>
                                     <h6 class="card-subtitle mb-2 text-muted autor">
-                                        Joseph Heller, <time datetime="1994">1994</time>
+                                        Joseph Heller, <time datetime="1994">1994</time>, (Román)
                                     </h6>
                                     <p class="shortInfo">
                                         Román Hlava XXII je jedným z najdôležitejších protivojnových diel, ktoré vyšli po druhej svetovej vojne.

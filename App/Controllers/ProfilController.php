@@ -50,7 +50,12 @@ class ProfilController extends AControllerBase
         $paginator = new Paginator(self::RESERVATIONS_PER_PAGE, $numberOfRows, "semestralka?c=Profil&page=");
         $page = !isset($_GET['page']) ? $_GET['page'] = 1 : $_GET['page'];
         $history= $paginator->getData($page, ComplexQuery::class, $user->getEmail(), 'getUserHistory');
-        if (is_null($history) && $numberOfRows != 0)
+
+        if (is_null($history) && ($numberOfRows == 0 && $page != 1))
+        {
+            $this->redirect("?c=NotFound");
+        }
+        else if (is_null($history) && $numberOfRows != 0)
         {
             $this->redirect("?c=NotFound");
         }
