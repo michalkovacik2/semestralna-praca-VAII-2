@@ -53,11 +53,11 @@ class ProfilController extends AControllerBase
 
         if (is_null($history) && ($numberOfRows == 0 && $page != 1))
         {
-            $this->redirect("?c=NotFound");
+            $this->redirect("semestralka?c=NotFound");
         }
         else if (is_null($history) && $numberOfRows != 0)
         {
-            $this->redirect("?c=NotFound");
+            $this->redirect("semestralka?c=NotFound");
         }
 
         if (isset($getData['page']))

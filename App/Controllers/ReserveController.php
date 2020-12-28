@@ -23,7 +23,7 @@ class ReserveController extends AControllerBase
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=Reservation");
+            $this->redirect("semestralka?c=Reserve");
         }
 
         $postData = $this->app->getRequest()->getPost();
@@ -70,7 +70,7 @@ class ReserveController extends AControllerBase
             for ($i = 0; $i < $amount; $i++)
                 $b->save();
 
-            $this->redirect("?c=Reserve");
+            $this->redirect("semestralka?c=Reserve");
         }
 
         $genres = Genre::getAll();

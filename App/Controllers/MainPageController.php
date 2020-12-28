@@ -18,7 +18,7 @@ class MainPageController extends AControllerBase
         $news = $paginator->getData($page, News::class, 5, 'getFromOrderBy');
         if (is_null($news))
         {
-            $this->redirect("?c=NotFound");
+            $this->redirect("semestralka?c=NotFound");
         }
         return $this->html([ 'news' => $news, 'paginator' => $paginator ]);
     }
@@ -26,14 +26,14 @@ class MainPageController extends AControllerBase
     public function logout()
     {
         $this->app->getAuth()->logout();
-        $this->redirect("?c=MainPage");
+        $this->redirect("semestralka?c=MainPage");
     }
 
     public function add()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=MainPage");
+            $this->redirect("semestralka?c=MainPage");
         }
 
         $postData = $this->app->getRequest()->getPost();
@@ -55,7 +55,7 @@ class MainPageController extends AControllerBase
             $text = htmlspecialchars($text);
             $u = new News($title, $text, $image64, date('Y-m-d H:i:s'), $_SESSION['user']->getEmail());
             $u->save();
-            $this->redirect("?c=MainPage");
+            $this->redirect("semestralka?c=MainPage");
         }
         else
         {
@@ -69,7 +69,7 @@ class MainPageController extends AControllerBase
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=MainPage");
+            $this->redirect("semestralka?c=MainPage");
         }
 
         $getData = $this->app->getRequest()->getGet();
@@ -82,7 +82,7 @@ class MainPageController extends AControllerBase
             }
             catch (KeyNotFoundException $ex)
             {
-                $this->redirect("?c=MainPage");
+                $this->redirect("semestralka?c=MainPage");
             }
 
             $actualPage = $getData['page'];
@@ -91,29 +91,29 @@ class MainPageController extends AControllerBase
             $news->delete();
             if ($numElements > 1)
             {
-                $this->redirect("?c=MainPage&page=". $actualPage);
+                $this->redirect("semestralka?c=MainPage&page=". $actualPage);
             }
             else
             {
                 $actualPage = ($actualPage == 1 ? 1 : $actualPage - 1);
-                $this->redirect("?c=MainPage&page=". $actualPage);
+                $this->redirect("semestralka?c=MainPage&page=". $actualPage);
             }
         }
-        $this->redirect("?c=MainPage");
+        $this->redirect("semestralka?c=MainPage");
     }
 
     public function edit()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=MainPage");
+            $this->redirect("semestralka?c=MainPage");
         }
 
         $postData = $this->app->getRequest()->getPost();
         $getData = $this->app->getRequest()->getGet();
         if (!isset($getData['id']))
         {
-            return $this->html("?c=MainPage");
+            return $this->html("semestralka?c=MainPage");
         }
 
         $news = null;
@@ -124,7 +124,7 @@ class MainPageController extends AControllerBase
         }
         catch (KeyNotFoundException $ex)
         {
-            $this->redirect("?c=MainPage");
+            $this->redirect("semestralka?c=MainPage");
         }
 
         $filesData = $this->app->getRequest()->getFiles();
@@ -153,7 +153,7 @@ class MainPageController extends AControllerBase
                 //$news->setCreationDate(date('Y-m-d H:i:s'));
                 $news->setEmail($this->app->getAuth()->getLoggedUser()->getEmail());
                 $news->save();
-                $this->redirect("?c=MainPage&page=". $_SESSION['page']);
+                $this->redirect("semestralka?c=MainPage&page=". $_SESSION['page']);
             }
         }
 
