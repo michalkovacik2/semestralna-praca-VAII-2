@@ -517,5 +517,4 @@ function compareMapsOfBooks(map1, map2)
 document.addEventListener('DOMContentLoaded', () =>
 {
     let reservation = new Reservation();
-
 }, false);

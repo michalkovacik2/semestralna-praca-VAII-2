@@ -19,7 +19,7 @@ class ClassLoader
                  include $file;
              } else {
                  // if not throw exception
-                 throw new Exception("Class {$class_name} file {$file} was not found.");
+                 header('Location: semestralka?c=NotFound');
              }
          });
      }

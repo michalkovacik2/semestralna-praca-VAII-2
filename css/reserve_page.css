@@ -86,6 +86,11 @@
     font-size: 30px;
 }
 
+.adminControls
+{
+    margin-left: 0px;
+}
+
 /* Tato cast je prevzata zo: */
 /* https://stackoverflow.com/questions/48401587/bootstrap4-radio-button-background-and-fill-color/48401949 */
 .custom-control-input:checked ~ .custom-control-label::before {

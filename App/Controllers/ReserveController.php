@@ -6,6 +6,7 @@ use App\Core\ComplexQuery;
 use App\Core\KeyNotFoundException;
 use App\Models\Book;
 use App\Models\Book_info;
+use App\Models\Genre;
 use App\Models\GenreCounts;
 use App\Models\Reservation;
 
@@ -16,6 +17,66 @@ class ReserveController extends AControllerBase
     public function index()
     {
         return $this->html(null);
+    }
+
+    public function addBook()
+    {
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
+        {
+            $this->redirect("?c=Reservation");
+        }
+
+        $postData = $this->app->getRequest()->getPost();
+        if (empty($postData))
+        {
+            $genres = Genre::getAll();
+            $data['genres'] = $genres;
+            return $this->html($data);
+        }
+
+        $filesData = $this->app->getRequest()->getFiles();
+        $file = $filesData['file'];
+        $name = $postData['name'];
+        $ISBN = $postData['ISBN'];
+        $author_name = $postData['author_name'];
+        $author_surname = $postData['author_surname'];
+        $release_year = $postData['release_year'];
+        $info = $postData['info'];
+        $genre_id = $postData['genre'];
+        $amount = $postData['amount'];
+
+        $res = $this->validate($ISBN, $name, $author_name, $author_surname, $release_year, $info, $genre_id, $file, $amount);
+        if(is_null($res))
+        {
+            $ISBN = str_replace(' ', '', $ISBN);
+            $ISBN = str_replace('-', '', $ISBN);
+            $ISBN = intval($ISBN);
+            $name = htmlspecialchars($name);
+            $author_name = htmlspecialchars($author_name);
+            $author_surname = htmlspecialchars($author_surname);
+            $release_year = intval($release_year);
+            $info = htmlspecialchars($info);
+            $genre_id = intval($genre_id);
+            $image = file_get_contents($file['tmp_name']);
+            $picture = uniqid('book');
+            $path = './img/books/'. $picture;
+            file_put_contents($path, $image);
+
+            $bi = new Book_info($ISBN, $name, $genre_id, $author_name, $author_surname, $release_year, $info, $picture);
+            $bi->insert();
+
+            $amount = intval($amount);
+            $b = new Book($ISBN);
+            for ($i = 0; $i < $amount; $i++)
+                $b->save();
+
+            $this->redirect("?c=Reserve");
+        }
+
+        $genres = Genre::getAll();
+        return $this->html(['data'   => ['name' => $name, 'ISBN' => $ISBN, 'file' => $file, 'author_name' => $author_name,
+                                         'author_surname' => $author_surname, 'release_year' => $release_year, 'info' => $info, 'genre' => $genre_id, 'amount' => $amount]
+                                          , 'errors' => $res, 'genres' => $genres]);
     }
 
     public function genres()
@@ -112,5 +173,32 @@ class ReserveController extends AControllerBase
         }
         array_unshift($genres, new GenreCounts('Všetky', strval($sum)));
         return $genres;
+    }
+
+    private function validate($ISBN, $name, $author_name, $author_surname, $release_year, $info, $genre_id, $file, $amount)
+    {
+        $nameErrs = Book_info::checkName($name);
+        $ISBNErrs = Book_info::checkISBN($ISBN);
+        $author_nameErrs = Book_info::checkAuthorName($author_name);
+        $author_surnameErrs = Book_info::checkAuthorSurname($author_surname);
+        $release_yearErrs = Book_info::checkReleaseYear($release_year);
+        $infoErrs = Book_info::checkInfo($info);
+        $genre_idErrs = Book_info::checkGenreID($genre_id);
+        $fileErrs = Book_info::checkFile($file);
+        $amountErrs = [];
+
+        if ($amount <= 0)
+        {
+            $amountErrs = "Množstvo kníh nemôže byť menej ako 1";
+        }
+
+        if (count($nameErrs) > 0 || count($ISBNErrs) > 0 || count($author_nameErrs) > 0 || count($author_surnameErrs) > 0 ||
+            count($release_yearErrs) > 0 || count($infoErrs) > 0 || count($genre_idErrs) > 0 || count($fileErrs) > 0 || count($amountErrs) > 0)
+        {
+            return ['name' => $nameErrs, 'ISBN' => $ISBNErrs, 'author_name' => $author_nameErrs, 'author_surname' => $author_surnameErrs,
+                    'release_year' => $release_yearErrs, 'info' => $infoErrs, 'genre' => $genre_idErrs, 'file' => $fileErrs, 'amount' => $amountErrs];
+        }
+
+        return null;
     }
 }

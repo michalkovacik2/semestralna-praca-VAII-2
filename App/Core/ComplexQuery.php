@@ -130,7 +130,7 @@ class ComplexQuery
             if (!is_null($genreID))
                 $stmt->bindValue(':genreID', (int) $genreID, PDO::PARAM_INT);
             if (!is_null($likeStatement))
-                $stmt->bindValue(':likeStmt', "$likeStatement%");
+                $stmt->bindValue(':likeStmt', "%$likeStatement%");
 
             $stmt->bindValue(':startI', (int) $start, PDO::PARAM_INT);
             $stmt->bindValue(':howMuch', (int) $howMuch, PDO::PARAM_INT);
@@ -176,7 +176,7 @@ class ComplexQuery
                 $stmt->bindValue(':genreID', (int) $genreID, PDO::PARAM_INT);
 
             if (!is_null($likeStatement))
-                $stmt->bindValue(':likeStmt', "$likeStatement%");
+                $stmt->bindValue(':likeStmt', "%$likeStatement%");
 
             $stmt->execute();
             $res = $stmt->fetch();

@@ -160,7 +160,7 @@ abstract class Model implements JsonSerializable
             } else {
                 $arrColumns = array_map(fn($item) => ($item . '=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
-                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE id=:" . self::getPKColumnName();
+                $sql = "UPDATE " . self::getTableName() . " SET $columns WHERE " . self::getPKColumnName() . "=:" . self::getPKColumnName();
                 $stmt = self::$connection->prepare($sql);
                 $stmt->execute($data);
                 return $data[self::getPKColumnName()];

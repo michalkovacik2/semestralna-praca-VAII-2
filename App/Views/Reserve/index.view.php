@@ -10,7 +10,14 @@
 
 <div class="container">
     <div class="row">
+
         <div class="col-md-4 col-sm-12 mt-4">
+            <?php /** @var \App\Core\AAuthenticator $auth */ ?>
+            <?php if ($auth->isLogged() && $auth->hasPrivileges()) { ?>
+                <div>
+                    <h4><a href="semestralka?c=Reserve&a=addBook" class="adminControls"> <i class="fas fa-plus"></i> Pridaj novú knihu </a></h4>
+                </div>
+            <?php } ?>
             <ul class="list-group" id="genres">
             </ul>
         </div>
