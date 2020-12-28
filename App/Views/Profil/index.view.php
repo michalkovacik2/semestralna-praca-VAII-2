@@ -228,7 +228,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-xs-2 col-sm-2 col-md-2 paddingZero">
-                            <img src="data:image/png;base64,<?= $history->getPicture() ?>" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
+                            <img src="semestralka/img/books/<?= $history->getPicture() ?>" class="img-thumbnail itemIcon w-100 h-100" alt="kniha">
                         </div>
                         <div class="col-xs-6 col-sm-6 col-md-6 paddingZero">
                             <div class="card middlePart">

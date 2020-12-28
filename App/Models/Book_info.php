@@ -14,6 +14,7 @@ class Book_info extends Model
     protected $release_year;
     protected $info;
     protected $picture;
+    protected $genre_name;
 
     /**
      * Book_info constructor.
@@ -44,6 +45,25 @@ class Book_info extends Model
                 'picture'];
     }
 
+    static public function getAllColumns()
+    {
+        return ['ISBN', 'name', 'genre_id', 'author_name', 'author_surname', 'release_year', 'info',
+            'picture', 'genre_name'];
+    }
+
+    public function setValues($data)
+    {
+        $this->ISBN = $data['ISBN'];
+        $this->name = $data['name'];
+        $this->genre_id = $data['genre_id'];
+        $this->author_name = $data['author_name'];
+        $this->author_surname = $data['author_surname'];
+        $this->release_year = $data['release_year'];
+        $this->info = $data['info'];
+        $this->picture = $data['picture'];
+        $this->genre_name = $data['genre_name'];
+    }
+
     static public function setPrimaryKeyColumnName()
     {
         return 'ISBN';
@@ -51,7 +71,7 @@ class Book_info extends Model
 
     static public function setTableName()
     {
-        return 'book';
+        return 'book_info';
     }
 
     /**

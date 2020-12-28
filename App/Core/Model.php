@@ -395,4 +395,39 @@ abstract class Model implements JsonSerializable
             throw new \Exception('Query failed: ' . $e->getMessage());
         }
     }
+
+    static public function getAllWhereOrder($whereCol, $whereCond, $orderBy)
+    {
+        self::connect();
+        try {
+            $whereVal = "";
+            if (!is_null($whereCond))
+            {
+               $whereVal = " WHERE :whereCol = :whereCond";
+            }
+            $sql = "SELECT * FROM " . self::getTableName() . $whereVal . " ORDER BY :colOrder ";
+            $stmt = self::$connection->prepare($sql);
+            if (!is_null($whereCond))
+            {
+                $stmt->bindValue(':whereCol', (string) $whereCol, PDO::PARAM_STR);
+                $stmt->bindValue(':whereCond', (string) $whereCond, PDO::PARAM_STR);
+            }
+            $stmt->bindValue(':colOrder', (int) $orderBy, PDO::PARAM_INT);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model)
+            {
+                $tmpModel = new static();
+                $data = array_fill_keys(self::getDbColumns(), null);
+                foreach ($data as $key => $item) {
+                    $tmpModel->$key = $model[$key];
+                }
+                $models[] = $tmpModel;
+            }
+            return $models;
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
 }

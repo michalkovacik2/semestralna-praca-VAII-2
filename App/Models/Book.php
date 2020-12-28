@@ -36,6 +36,17 @@ class Book extends Model
         return 'book';
     }
 
+    static public function getAllColumns()
+    {
+        return ['book_id', 'ISBN'];
+    }
+
+    public function setValues($data)
+    {
+        $this->book_id = $data['book_id'];
+        $this->ISBN = $data['ISBN'];
+    }
+
     /**
      * @return null
      */
