@@ -79,6 +79,100 @@ class ReserveController extends AControllerBase
                                           , 'errors' => $res, 'genres' => $genres]);
     }
 
+    public function editBook()
+    {
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
+            $this->redirect("semestralka?c=Reserve");
+        }
+
+        $postData = $this->app->getRequest()->getPost();
+        $getData = $this->app->getRequest()->getGet();
+        if (!isset($getData['ISBN'])) {
+            $this->redirect("semestralka?c=Reserve");
+        }
+
+        /** @var $bookInfo Book_info */
+        $bookInfo = null;
+        $errs = null;
+        try {
+            $bookInfo = Book_info::getOne($getData['ISBN']);
+        } catch (KeyNotFoundException $ex) {
+            $this->redirect("semestralka?c=Reserve");
+        }
+
+        $name = $bookInfo->getName();
+        $author_name = $bookInfo->getAuthorName();
+        $author_surname = $bookInfo->getAuthorSurname();
+        $release_year = $bookInfo->getReleaseYear();
+        $info = $bookInfo->getInfo();
+        $genre_id = $bookInfo->getGenreId();
+        $file = $bookInfo->getPicture();
+
+        if (isset($postData['name']) || isset($postData['author_name']) || isset($postData['author_surname']) || isset($postData['release_year']) ||
+            isset($postData['info']) || isset($postData['genre']) || isset($postData['file'])) {
+            $nameErrs = Book_info::checkName($postData['name']);
+            $author_nameErrs = Book_info::checkAuthorName($postData['author_name']);
+            $author_surnameErrs = Book_info::checkAuthorSurname($postData['author_surname']);
+            $release_yearErrs = Book_info::checkReleaseYear($postData['release_year']);
+            $infoErrs = Book_info::checkInfo($postData['info']);
+            $genre_idErrs = Book_info::checkGenreID($postData['genre']);
+            $fileErrs = [];
+
+            $FILE = $this->app->getRequest()->getFiles();
+            if (isset($FILE['file']) && $FILE['file']['size'] != 0)
+            {
+                $fileErrs = Book_info::checkFile($FILE['file']);
+            }
+
+            $name = $postData['name'];
+            $author_name = $postData['author_name'];
+            $author_surname = $postData['author_surname'];
+            $release_year = $postData['release_year'];
+            $info = $postData['info'];
+            $genre_id = $postData['genre'];
+
+            if (count($nameErrs) > 0 || count($author_nameErrs) > 0 || count($author_surnameErrs) > 0 ||
+                count($release_yearErrs) > 0 || count($infoErrs) > 0 || count($genre_idErrs) > 0 || count($fileErrs) > 0) {
+                $errs = ['name' => $nameErrs, 'author_name' => $author_nameErrs, 'author_surname' => $author_surnameErrs,
+                    'release_year' => $release_yearErrs, 'info' => $infoErrs, 'genre' => $genre_idErrs, 'file' => $fileErrs];
+            }
+            else
+            {
+                $name = htmlspecialchars($name);
+                $author_name = htmlspecialchars($author_name);
+                $author_surname = htmlspecialchars($author_surname);
+                $release_year = intval($release_year);
+                $info = htmlspecialchars($info);
+                $genre_id = intval($genre_id);
+                if (isset($FILE['file']) && $FILE['file']['size'] != 0)
+                {
+                    $image = file_get_contents($FILE['file']['tmp_name']);
+                    $path = './img/books/'. $bookInfo->getPicture();
+                    unlink($path);
+                    $uid = uniqid('book');
+                    $path = './img/books/'. $uid;
+                    file_put_contents($path, $image);
+                    $bookInfo->setPicture($uid);
+                }
+                $bookInfo->setName($name);
+                $bookInfo->setAuthorName($author_name);
+                $bookInfo->setAuthorSurname($author_surname);
+                $bookInfo->setReleaseYear($release_year);
+                $bookInfo->setInfo($info);
+                $bookInfo->setGenreId($genre_id);
+
+
+                $bookInfo->update();
+                $this->redirect("semestralka?c=Reserve");
+            }
+        }
+
+        $genres = Genre::getAll();
+        return $this->html(['data'   => ['ISBN' => $getData['ISBN'], 'name' => $name, 'file' => $file, 'author_name' => $author_name,
+            'author_surname' => $author_surname, 'release_year' => $release_year, 'info' => $info, 'genre' => $genre_id]
+            , 'errors' => $errs, 'genres' => $genres]);
+    }
+
     public function genres()
     {
         return $this->json($this->generateGenres());
@@ -109,7 +203,8 @@ class ReserveController extends AControllerBase
 
         $books = ComplexQuery::getBooks($whereCondition, $like,$page*self::BOOKS_PER_PAGE, self::BOOKS_PER_PAGE);
 
-        array_unshift($books, ['ALL' => ComplexQuery::getBooksCount($whereCondition, $like)]);
+        $adminPriv = $this->app->getAuth()->isLogged() && $this->app->getAuth()->hasPrivileges();
+        array_unshift($books, ['ALL' => ComplexQuery::getBooksCount($whereCondition, $like), 'admin' => $adminPriv]);
         return $this->json($books);
     }
 
@@ -143,7 +238,7 @@ class ReserveController extends AControllerBase
 
         try
         {
-            $book = Book_info::getOne($data->ISBN);
+            Book_info::getOne($data->ISBN);
         }
         catch(KeyNotFoundException $e)
         {

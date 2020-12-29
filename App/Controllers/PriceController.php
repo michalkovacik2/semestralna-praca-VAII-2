@@ -17,7 +17,7 @@ class PriceController extends AControllerBase
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
 
         $postData = $this->app->getRequest()->getPost();
@@ -38,7 +38,7 @@ class PriceController extends AControllerBase
             $price = floatval($price);
             $p = new Price_list($name, $price);
             $p->save();
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
         else
         {
@@ -52,14 +52,14 @@ class PriceController extends AControllerBase
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
 
         $postData = $this->app->getRequest()->getPost();
         $getData = $this->app->getRequest()->getGet();
         if (!isset($getData['id']))
         {
-            return $this->html("?c=Price");
+            return $this->html("semestralka?c=Price");
         }
 
         /** @var $priceData Price_list */
@@ -71,7 +71,7 @@ class PriceController extends AControllerBase
         }
         catch (KeyNotFoundException $ex)
         {
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
 
         $name = $priceData->getName();
@@ -93,7 +93,7 @@ class PriceController extends AControllerBase
                 $priceData->setName($name);
                 $priceData->setPrice($price);
                 $priceData->save();
-                $this->redirect("?c=Price");
+                $this->redirect("semestralka?c=Price");
             }
         }
 
@@ -104,7 +104,7 @@ class PriceController extends AControllerBase
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
         {
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
 
         $getData = $this->app->getRequest()->getGet();
@@ -117,11 +117,11 @@ class PriceController extends AControllerBase
             }
             catch (KeyNotFoundException $ex)
             {
-                $this->redirect("?c=Price");
+                $this->redirect("semestralka?c=Price");
             }
 
             $priceData->delete();
-            $this->redirect("?c=Price");
+            $this->redirect("semestralka?c=Price");
         }
     }
 

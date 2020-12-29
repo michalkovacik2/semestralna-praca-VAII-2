@@ -91,6 +91,12 @@ body {
     font-size: 16px;
 }
 
+.myEditBookIMG
+{
+    height: 300px;
+    width: 200px;
+}
+
 @media (min-width: 576px) {
     .card-columns {
         column-count: 2;

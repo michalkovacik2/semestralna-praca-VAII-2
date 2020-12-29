@@ -2,6 +2,8 @@
 <link rel="stylesheet" href="semestralka/css/main_page.css">
 <link rel="stylesheet" href="semestralka/css/reserve_page.css">
 <script src="semestralka/js/reserve.js"></script>
+<script src="semestralka/js/paginator.js"></script>
+<script src="semestralka/js/InfoPopUp.js"></script>
 </head>
 <body>
 
@@ -45,11 +47,18 @@
                         <div class="modal-footer justify-content-center">
                             <button type="button" class="btn" data-dismiss="modal" id="modalButton">OK</button>
                         </div>
-                    </div> <!-- / .modal-content -->
-                </div> <!-- / .modal-dialog -->
+                    </div>
+                </div>
             </div>
 
             <nav aria-label="Hladanie medzi knihami" id="paginator"></nav>
         </div>
+
+        <form action="semestralka?c=Reserve&a=editBook" method="get" class="d-none" id="editBookFormID">
+            <input type="text" name="c" value="Reserve">
+            <input type="text" name="a" value="editBook">
+            <input type="text" name="ISBN" value="" id="editBookFormISBN">
+        </form>
+
     </div>
 </div>

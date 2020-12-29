@@ -7,19 +7,23 @@ class Reservation
         this._filter = null;
         this._page = 1;
         this._searchBar = null;
+        this._admin = false;
+        this._searchTimer;
 
         this.reloadData();
         this.reloadBookCount();
 
         let self = this;
-        $("#searchBar").on("input", function(event)
+        $("#searchBar").on("input", function()
         {
-            self.handleSearchBar(event);
+            clearTimeout(self._searchTimer);
+            self._searchTimer = setTimeout(function() { self.handleSearchBar(); }, 500);
         });
+
 
         setInterval(() => {
             this.reloadData()
-        }, 10000);
+        }, 9000);
 
         setInterval(() => {
             this.reloadBookCount()
@@ -34,7 +38,9 @@ class Reservation
             link += this._searchBar == null ? "" : "&like=" + this._searchBar;
             let response = await fetch(link);
             let data = await response.json();
+
             let count =  data[0].ALL;
+            this._admin = data[0].admin;
             data.shift();
 
             let map = new Map();
@@ -52,14 +58,23 @@ class Reservation
                 let html = "";
                 this._books.forEach((book) =>
                 {
-                    html += book.generateHtml();
+                    html += book.generateHtml(this._admin);
                 });
                 books.innerHTML = html;
 
-                //Create paginator
-                let paginator = new Paginator(count);
-                paginator.displayPages();
                 let self = this;
+                //If admin then create click on edit
+                if (this._admin)
+                {
+                    $('.adminEdit').on('click', function(event)
+                    {
+                        self.handleEditBook(event);
+                    })
+                }
+
+                //Create paginator
+                let paginator = new Paginator(count, 5);
+                paginator.displayPages();
                 for (let i=0; i < paginator.getNumberOfPages(); i++)
                 {
                     $('#paginator'+(i+1)).on('click', function(event)
@@ -186,32 +201,23 @@ class Reservation
                 })
             });
 
-            //<i class="fas fa-check-circle logoModal"></i>
             let dataResponse = await response.text();
             let responseJson = JSON.parse(dataResponse);
-            let modalTEXT = document.getElementById('modalTEXT');
-            let modalIcon = document.getElementById('modalIcon');
-            let modalButton = document.getElementById('modalButton');
+            let popUp = new InfoPopUp();
             if (responseJson.Error === "")
             {
-                modalTEXT.innerHTML = "<b>Rezervácia knihy prebehla úspešne<b>";
-                modalIcon.innerHTML = `<i class="fas fa-check-circle logoModal"></i>`;
-                modalIcon.childNodes[0].style.color = 'green';
-                modalButton.classList.remove("btn-danger");
-                modalButton.classList.add("btn-success");
+                popUp.setSuccess("Rezervácia knihy prebehla úspešne");
+                popUp.show();
             }
             else
             {
-                modalTEXT.innerHTML = "<b>Chyba pri rezervovaní knihy<b> <br>" + responseJson.Error;
-                modalIcon.innerHTML = `<i class="fas fa-times-circle logoModal"></i>`;
-                modalIcon.childNodes[0].style.color = 'red';
-                modalButton.classList.remove("btn-success");
-                modalButton.classList.add("btn-danger");
+                popUp.setAlert("Chyba pri rezervovaní knihy <br>" + responseJson.Error);
+                popUp.show();
             }
-            $('#modal').modal('show')
-            await this.getNumberOfAvailableBooks();
+            this.getNumberOfAvailableBooks();
 
-        } catch (e) {
+        } catch (e)
+        {
             console.error('Chyba: ' + e.message);
         }
     }
@@ -238,14 +244,22 @@ class Reservation
         this.sendReservation(ISBN);
     }
 
-    handleSearchBar(event)
+    handleSearchBar()
     {
         this._page = 1;
         this._searchBar = $("#searchBar").val();
-        this.getBooks()
+        this.getBooks();
     }
 
-    reloadData() {
+    handleEditBook(event)
+    {
+        let text = event.toElement.id.replace("adminEdit", "");
+        $("#editBookFormISBN").val(text);
+        $("#editBookFormID").submit();
+    }
+
+    reloadData()
+    {
         this.getBooks();
         this.getGenres();
     }
@@ -271,7 +285,7 @@ class Book
         this._genre_name = json.genre_name;
     }
 
-    generateHtml()
+    generateHtml(admin)
     {
         let html = "";
         html += `<div class="jumbotron-fluid bookItem" id="book`+ this.ISBN +`">
@@ -283,7 +297,7 @@ class Book
                                     <div class="col-xs-10 col-sm-10 col-md-10 paddingZero">
                                         <div class="card">
                                             <div class="card-body myCard">
-                                                <h4>` + this.name + `</h4>
+                                                <h4>` + this.name + `<span class="adminEdit adminControls">` + (admin ? `<i class="fas fa-pen ml-2" id="adminEdit` + this.ISBN + `"></i>` : "") + `</span> </h4>
                                                 <h6 class="card-subtitle mb-2 text-muted autor">
                                                     ` + this.author_name + " " + this.author_surname + `,<time datetime="` + this.release_year + `"> ` + this.release_year  + ` </time>, (` + this.genre_name + `)
                                                 </h6>
@@ -470,33 +484,6 @@ class Genre
     }
 
     // endregion
-}
-
-class Paginator
-{
-    constructor(numberOfData)
-    {
-        this._numberOfData = numberOfData;
-        let numSites = Math.floor(numberOfData/5);
-        this._numberOfPages = numberOfData % 5 !== 0 ? numSites + 1 : numSites;
-    }
-
-    displayPages()
-    {
-        var o = document.getElementById("paginator");
-        let html = `<ul class="pagination justify-content-center mt-3">`;
-        for (let i = 0; i < this._numberOfPages; i++)
-        {
-            html += `<li class="page-item"><a id="paginator`+ (i+1) +`" class="page-link" href="#">` + (i+1) + `</a></li>`;
-        }
-        html += `</ul>`;
-        o.innerHTML = html;
-    }
-
-    getNumberOfPages()
-    {
-        return this._numberOfPages;
-    }
 }
 
 function compareMapsOfBooks(map1, map2)

@@ -6,6 +6,7 @@ use App\Core\DB\Connection;
 use App\Models\Book;
 use App\Models\Book_info;
 use App\Models\BookCounts;
+use App\Models\BookReservationsPending;
 use App\Models\GenreCounts;
 use App\Models\History;
 use JsonSerializable;
@@ -169,7 +170,7 @@ class ComplexQuery
             {
                 $whereVal = " WHERE book_info.name LIKE :likeStmt";
             }
-            $sql = "select COUNT(*) from book_info join genre g on book_info.genre_id = g.genre_id" . $whereVal . " ORDER BY book_info.name";
+            $sql = "select COUNT(*) from book_info join genre g on book_info.genre_id = g.genre_id" . $whereVal;
 
             $stmt = self::$connection->prepare($sql);
             if (!is_null($genreID))
@@ -257,6 +258,67 @@ class ComplexQuery
                 $models[] = $tmpModel;
             }
             return $models;
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    static public function getUserReservations($like, $start, $howMuch)
+    {
+        self::connect();
+        try {
+            $whereStm = "";
+            if (!is_null($like))
+            {
+               $whereStm = "and email like :likeStmt";
+            }
+
+            $sql = "select reservation_id, b.ISBN, name, b.book_id, email, request_date, reserve_day, return_day from reservation join book b on reservation.book_id = b.book_id join book_info bi on b.ISBN = bi.ISBN " . $whereStm . " ORDER BY (CASE WHEN return_day IS NULL THEN 0 ELSE 1 END), request_date DESC LIMIT :startI, :howMuch";
+            $stmt = self::$connection->prepare($sql);
+
+            if (!is_null($like))
+                $stmt->bindValue(':likeStmt', "$like%");
+
+
+            $stmt->bindValue(':startI', (int) $start, PDO::PARAM_INT);
+            $stmt->bindValue(':howMuch', (int) $howMuch, PDO::PARAM_INT);
+            $stmt->execute();
+            $dbModels = $stmt->fetchAll();
+            $models = [];
+            foreach ($dbModels as $model) {
+                $tmpModel = new BookReservationsPending();
+                $data = array_fill_keys(BookReservationsPending::getDBColumns(), null);
+                foreach ($data as $key => $item) {
+                    $data[$key] = $model[$key];
+                }
+                $tmpModel->setValues($data);
+                $models[] = $tmpModel;
+            }
+            return $models;
+        } catch (PDOException $e) {
+            throw new \Exception('Query failed: ' . $e->getMessage());
+        }
+    }
+
+    static public function getUserReservationsCount($like)
+    {
+        self::connect();
+        try {
+            $whereStm = "";
+            if (!is_null($like))
+            {
+                $whereStm = "and email like :likeStmt";
+            }
+
+            $sql = "select COUNT(reservation_id) from reservation join book b on reservation.book_id = b.book_id join book_info bi on b.ISBN = bi.ISBN " . $whereStm;
+            $stmt = self::$connection->prepare($sql);
+
+            if (!is_null($like))
+                $stmt->bindValue(':likeStmt', "$like%");
+
+            $stmt->execute();
+            $res = $stmt->fetch();
+            return intval($res[0]);
         } catch (PDOException $e) {
             throw new \Exception('Query failed: ' . $e->getMessage());
         }

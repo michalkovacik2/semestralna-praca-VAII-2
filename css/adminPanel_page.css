@@ -1,0 +1,46 @@
+#adminPanelTable td, #adminPanelTable th {
+    border: 1px solid #DDDDDD;
+    padding: 8px;
+}
+
+#adminPanelTable tr:nth-child(even) {
+    background-color: #CAD2DB;
+}
+
+#adminPanelTable tr:hover {
+    background-color: #B4BECB;
+}
+
+#adminPanelTable th {
+    padding-top: 12px;
+    background-color: orange;
+    color: black;
+}
+
+#adminPanelTable td, #adminPanelTable th {
+    border: 1px solid #DDDDDD;
+    padding: 8px;
+}
+
+#adminPanelTable th {
+    padding-top: 12px;
+    text-align: left;
+    background-color: orange;
+    color: black;
+}
+
+.orangeFont {
+    color: #ff9007;
+}
+
+.bannerText
+{
+    color: red;
+}
+
+.tableButton
+{
+    font-size: 21px;
+    border-radius: 5px;
+    background-color: orange;
+}

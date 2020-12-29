@@ -17,6 +17,11 @@
                 <?php if ($auth->isLogged()) { ?>
                     <a href="semestralka?c=Profil" class="nav-item nav-link"> <i class="fas fa-user"></i> Profil </a>
                 <?php } ?>
+
+                <?php if ($auth->isLogged() && $auth->hasPrivileges()) { ?>
+                    <a href="semestralka?c=AdminPanel" class="nav-item nav-link"><i class="fas fa-tools"></i> Admin panel </a>
+                <?php } ?>
+
             </div>
             <div class="navbar-nav ml-auto">
                 <?php if ($auth->isLogged()) { ?>
