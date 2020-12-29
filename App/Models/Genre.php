@@ -5,6 +5,8 @@ use App\Core\Model;
 
 class Genre extends Model
 {
+    private const MAX_SIZE_NAME = 30;
+
     protected $genre_id;
     protected $name;
 
@@ -34,6 +36,20 @@ class Genre extends Model
         return 'genre';
     }
 
+    static public function checkName($name)
+    {
+        $nameErrs = [];
+        if (empty($name))
+        {
+            $nameErrs[] = "Prosím zadajte názov žánru";
+        }
+        else
+        {
+            if (strlen($name) > self::MAX_SIZE_NAME)
+                $nameErrs[] = "Názov nesmie byť dlhší ako " . self::MAX_SIZE_NAME;
+        }
+        return $nameErrs;
+    }
 
     /**
      * @return null

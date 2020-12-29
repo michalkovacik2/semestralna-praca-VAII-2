@@ -60,5 +60,26 @@
             <input type="text" name="ISBN" value="" id="editBookFormISBN">
         </form>
 
+        <div class="modal" id="modalGenre">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title" id="modalGenreTitle"></h2>
+                        <button type="button" class="close" data-dismiss="modal"><i class="fas fa-times"></i></button>
+                    </div>
+                        <div class="modal-body text-left">
+                            <label for="modalGenreName" class="font-weight-bold">Názov žánru: </label>
+                            <input type="text" class="form-control" id="modalGenreName" name="name" placeholder="Žáner">
+                            <div class="mt-1 alert alert-danger d-none" id="modalGenreErrors">
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-success" id="modalGenreButton"></button>
+                        </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

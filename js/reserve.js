@@ -20,7 +20,6 @@ class Reservation
             self._searchTimer = setTimeout(function() { self.handleSearchBar(); }, 500);
         });
 
-
         setInterval(() => {
             this.reloadData()
         }, 9000);
@@ -97,40 +96,46 @@ class Reservation
         {
             let response = await fetch("semestralka?c=Reserve&a=genres");
             let data = await response.json();
-            let change = false;
 
+            let newGenres = new Map();
             //Get new data and check differences
             data.forEach((genre) =>
             {
                 let genreObj = new Genre(genre);
-                if (this._genres.has(genreObj.genre_id))
-                {
-                    if (!this._genres.get(genreObj.genre_id).equals(genreObj))
-                    {
-                        this._genres.set(genreObj.genre_id, genreObj);
-                        change = true;
-                    }
-                }
-                else
-                {
-                    this._genres.set(genreObj.genre_id, genreObj);
-                    change = true;
-                }
+                newGenres.set(genreObj.genre_id, genreObj);
             });
 
             //If there is something changed in data then update html.
-            if (change)
+            if (!compareMapsOfBooks(newGenres, this._genres))
             {
+                this._genres = newGenres;
                 let genres = document.getElementById("genres");
                 let html = `<li class="list-group-item d-flex justify-content-between align-items-center categoryTitle">
-                                <strong>Žánre</strong>
+                                <strong>Žánre</strong> ` + (this._admin ? '<i class="fas fa-plus genrePlus" id="addGenre"></i>' : '' ) + `
                             </li>`;
                 this._genres.forEach((genre) =>
                 {
-                    html += genre.generateHtml();
+                    html += genre.generateHtml(this._admin);
                 });
                 genres.innerHTML = html;
+
                 let self = this;
+                this._genres.forEach((genre) =>
+                {
+                    if (genre.genre_id !== "")
+                    {
+                        $('#radioEdit'+genre.genre_id).on('click', function(event)
+                        {
+                            self.handleEditGenre(event, genre.name);
+                        });
+                    }
+                });
+
+                $( '#addGenre' ).on('click', function(event)
+                {
+                    self.handleAddGenre(event);
+                });
+
                 $( ':radio' ).on('click', function(event)
                 {
                     self.handleClick(event);
@@ -222,6 +227,45 @@ class Reservation
         }
     }
 
+    async modifyGenre(id, name)
+    {
+        try {
+            id = id == null ? -1 : id;
+            let response = await fetch("semestralka?c=Reserve&a=modifyGenre", {
+                method: 'POST', // or 'PUT'
+                headers:
+                    {
+                        'Content-Type': "application/json",
+                    },
+                body: JSON.stringify(
+                    {
+                        genre_id: id,
+                        name: name
+                    })
+            });
+
+            let dataResponse = await response.text();
+            let responseJson = JSON.parse(dataResponse);
+            console.log(responseJson.Error);
+            if (responseJson.Error === "")
+            {
+                $('#modalGenre').modal('hide');
+            }
+            else
+            {
+                let errors = document.getElementById('modalGenreErrors');
+                errors.innerHTML = "Žáner sa nepodarilo pridať <br>" + responseJson.Error;
+                errors.classList.remove("d-none");
+            }
+            this.getGenres();
+            this.getBooks();
+
+        } catch (e)
+        {
+            console.error('Chyba: ' + e.message);
+        }
+    }
+
     handleClick(event)
     {
         let text = event.toElement.id.replace("radio", "");
@@ -256,6 +300,47 @@ class Reservation
         let text = event.toElement.id.replace("adminEdit", "");
         $("#editBookFormISBN").val(text);
         $("#editBookFormID").submit();
+    }
+
+    handleAddGenre(event)
+    {
+        let title = document.getElementById('modalGenreTitle');
+        let inputBox = document.getElementById('modalGenreName');
+        document.getElementById('modalGenreErrors').classList.add("d-none");
+        let $button = $('#modalGenreButton');
+        inputBox.value = "";
+        $button.text("Pridaj");
+        title.innerText = "Pridajte nový žáner";
+        $('#modalGenre').modal('show');
+
+        let self = this;
+        $button.off();
+        $button.on('click', () =>
+        {
+            name = $('#modalGenreName').val();
+            self.modifyGenre(null, name);
+        });
+    }
+
+    handleEditGenre(event, name)
+    {
+        let id  = event.toElement.id.replace("radioEdit", "");
+        let title = document.getElementById('modalGenreTitle');
+        let $button = $('#modalGenreButton');
+        let inputBox = document.getElementById('modalGenreName');
+        document.getElementById('modalGenreErrors').classList.add("d-none");
+        $button.text("Uprav");
+        title.innerText = "Upravte žáner";
+        inputBox.value = name;
+        $('#modalGenre').modal('show');
+
+        let self = this;
+        $button.off();
+        $button.on('click', () =>
+        {
+            name = $('#modalGenreName').val();
+            self.modifyGenre(id, name);
+        });
     }
 
     reloadData()
@@ -427,13 +512,14 @@ class Genre
         this._count = json.count;
     }
 
-    generateHtml()
+    generateHtml(admin)
     {
         var html = "";
         html += `<li class="list-group-item d-flex justify-content-between align-items-center">
             <div class="custom-control custom-radio">
                 <input type="radio" class="custom-control-input" id="radio`+ this.genre_id + `" name="category" ` + (this.genre_id === "" ? "checked" : "" ) + `>
                 <label class="custom-control-label" for="radio` + this.genre_id + `">` + this.name + `</label>
+                ` +( admin && this._genre_id != null ? '<i class="fas fa-pen ml-2 adminControls" id="radioEdit' + this._genre_id + '"></i>' : '') + `
             </div>
             <span class="badge orangeBadge">` + this.count + `</span>
         </li>`;

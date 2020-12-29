@@ -92,6 +92,23 @@
     font-size: 18px;
 }
 
+.genrePlus
+{
+    margin-left: 0px;
+    font-size: 18px;
+}
+
+.genrePlus {
+    text-decoration: none;
+    color: black;
+}
+
+.genrePlus:hover {
+    text-decoration: none;
+    color: #95999c;
+    cursor: pointer;
+}
+
 /* Tato cast je prevzata zo: */
 /* https://stackoverflow.com/questions/48401587/bootstrap4-radio-button-background-and-fill-color/48401949 */
 .custom-control-input:checked ~ .custom-control-label::before {

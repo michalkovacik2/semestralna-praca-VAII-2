@@ -257,6 +257,52 @@ class ReserveController extends AControllerBase
         return $this->json(['Error' => '']);
     }
 
+    public function modifyGenre()
+    {
+        if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
+            $this->redirect("semestralka?c=Reserve");
+        }
+
+        $postBody = file_get_contents('php://input');
+        $data = json_decode($postBody);
+
+        if (!isset($data->genre_id) || !isset($data->name))
+        {
+            return $this->json(['Error' => 'Prosím zadajte vstupné hodnoty']);
+        }
+
+        $nameErrs = Genre::checkName($data->name);
+        if (count($nameErrs) > 0)
+        {
+            return $this->json(['Error' => $nameErrs]);
+        }
+
+        if ($data->genre_id == -1)
+        {
+            //Add
+            $genre = new Genre($data->name);
+            $genre->insert();
+        }
+        else
+        {
+            //Update
+            try
+            {
+                /** @var $genre Genre */
+                $genre = Genre::getOne($data->genre_id);
+            }
+            catch(KeyNotFoundException $e)
+            {
+                return $this->json(['Error' => 'Zadaný žáner neexistuje']);
+            }
+
+            $genre->setName($data->name);
+            $genre->update();
+        }
+
+        return $this->json(['Error' => '']);
+    }
+
     private function generateGenres()
     {
         $genres = ComplexQuery::getGenresCount();
