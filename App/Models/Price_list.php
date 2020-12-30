@@ -4,6 +4,10 @@ namespace App\Models;
 
 use App\Core\Model;
 
+/**
+ * Class Price_list represents database entity price_list
+ * @package App\Models
+ */
 class Price_list extends Model
 {
     private const MAX_SIZE_NAME = 50;
@@ -36,36 +40,11 @@ class Price_list extends Model
         return 'Price_list';
     }
 
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    public function setName( $name): void
-    {
-        $this->name = $name;
-    }
-
-    public function getPrice()
-    {
-        return $this->price;
-    }
-
-    public function setPrice($price): void
-    {
-        $this->price = $price;
-    }
-
+    /**
+     * Checks if name is valid
+     * @param $name
+     * @return array - errors found, empty if none are found
+     */
     static public function checkName($name)
     {
         $nameErrs = [];
@@ -81,6 +60,11 @@ class Price_list extends Model
         return $nameErrs;
     }
 
+    /**
+     * Checks if price is valid
+     * @param $price
+     * @return array - errors found, empty if none are found
+     */
     static public function checkPrice($price)
     {
         $priceErrs = [];
@@ -117,4 +101,38 @@ class Price_list extends Model
         }
         return $priceErrs;
     }
+
+    //region Getters and setters
+
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setId($id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function setName( $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getPrice()
+    {
+        return $this->price;
+    }
+
+    public function setPrice($price): void
+    {
+        $this->price = $price;
+    }
+
+    //endregion
 }

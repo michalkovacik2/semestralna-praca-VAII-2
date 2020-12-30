@@ -3,6 +3,10 @@
 namespace App\Models;
 use App\Core\Model;
 
+/**
+ * Class Reservation represents database entity reservation
+ * @package App\Models
+ */
 class Reservation extends Model
 {
     protected $reservation_id;
@@ -45,6 +49,8 @@ class Reservation extends Model
     {
         return 'reservation';
     }
+
+    // region Getters and setters
 
     /**
      * @return null
@@ -133,5 +139,7 @@ class Reservation extends Model
     {
         $this->email = $email;
     }
+
+    //endregion
 
 }

@@ -3,8 +3,16 @@
 namespace App\Controllers;
 use App\Core\AControllerBase;
 
+/**
+ * Class LoginController represents controller for login page
+ * @package App\Controllers
+ */
 class LoginController extends AControllerBase
 {
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     */
     public function index()
     {
         $postData = $this->app->getRequest()->getPost();

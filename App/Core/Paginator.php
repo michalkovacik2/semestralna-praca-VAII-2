@@ -2,6 +2,10 @@
 
 namespace App\Core;
 
+/**
+ * Class Paginator generates the paging on a site
+ * @package App\Core
+ */
 class Paginator
 {
     private int $itemsOnePage;
@@ -9,7 +13,13 @@ class Paginator
     private string $link;
     private int $numberOfPages;
 
-    public function __construct($numOfItemsOnOnePage, $totalNumberOfItems, $link)
+    /**
+     * Paginator constructor.
+     * @param int $numOfItemsOnOnePage - how many items do we want on one page
+     * @param int $totalNumberOfItems - total number of all items
+     * @param string $link - link where the paginator is used
+     */
+    public function __construct(int $numOfItemsOnOnePage, int $totalNumberOfItems, string $link)
     {
         $this->itemsOnePage = $numOfItemsOnOnePage;
         $this->totalNumber = $totalNumberOfItems;
@@ -19,14 +29,15 @@ class Paginator
         $this->numberOfPages = $totalNumberOfItems % $numOfItemsOnOnePage != 0 ? $numSites + 1 : $numSites;
     }
 
-
     /**
-     * @param $page int
-     * @param $data string
-     * @param $param3
+     * Gets the data which should be displayed on this site
+     * @param int $page - which page we want
+     * @param $data - class of data
+     * @param $param3 - additional argument to the query
+     * @param $func - which function to call to get the data
      * @return array
      */
-    public function getData($page, $data, $param3, $func)
+    public function getData(int $page, $data, $param3, $func)
     {
         if ($page <= 0 || $page > $this->numberOfPages)
             return null;
@@ -34,7 +45,12 @@ class Paginator
         return $data::$func(($page - 1) * $this->itemsOnePage, $this->itemsOnePage, $param3);
     }
 
-    public function getLayout($page) :string
+    /**
+     * Gets the layout of the paginator
+     * @param int $page
+     * @return string
+     */
+    public function getLayout(int $page) :string
     {
         $layout = '';
 

@@ -6,10 +6,19 @@ use App\Core\KeyNotFoundException;
 use App\Core\Paginator;
 use App\Models\News;
 
+/**
+ * Class MainPageController represents controller for main page
+ * @package App\Controllers
+ */
 class MainPageController extends AControllerBase
 {
     private const NEWS_PER_PAGE = 4;
 
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function index()
     {
         $paginator = new Paginator(self::NEWS_PER_PAGE, News::getNumberOfRows(), "semestralka?c=MainPage&page=");
@@ -23,12 +32,21 @@ class MainPageController extends AControllerBase
         return $this->html([ 'news' => $news, 'paginator' => $paginator ]);
     }
 
+    /**
+     * Represents action to logout user
+     */
     public function logout()
     {
         $this->app->getAuth()->logout();
         $this->redirect("semestralka?c=MainPage");
     }
 
+    /**
+     * Action that adds a News to main page
+     * Expected POST parameters 'title', 'text' and it also expects a FILE
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function add()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -48,8 +66,10 @@ class MainPageController extends AControllerBase
         $text = $postData['text'];
 
         $res = $this->validate($title, $text, $file);
+
         if(is_null($res))
         {
+            //If input is valid
             $image64 = base64_encode(file_get_contents($file['tmp_name']));
             $title = htmlspecialchars($title);
             $text = htmlspecialchars($text);
@@ -65,6 +85,10 @@ class MainPageController extends AControllerBase
         return $this->html(null);
     }
 
+    /**
+     * Action to delete a particular News
+     * @throws \Exception
+     */
     public function delete()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -102,6 +126,11 @@ class MainPageController extends AControllerBase
         $this->redirect("semestralka?c=MainPage");
     }
 
+    /**
+     * Action to edit a news based on its ID
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function edit()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -163,6 +192,14 @@ class MainPageController extends AControllerBase
         return $this->html(['data' => $news, 'errors' => $errs]);
     }
 
+    /**
+     * Function used to validate data for News.
+     * If data is valid returns null otherwise it returns array with errors.
+     * @param $title
+     * @param $text
+     * @param $file
+     * @return array|null
+     */
     private function validate($title, $text, $file)
     {
         $titleErrs = News::checkTitle($title);

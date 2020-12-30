@@ -80,12 +80,10 @@ abstract class Model implements JsonSerializable
 
     /**
      * Return an array of models from DB
-     * @param string $whereClause Additional where Statement
-     * @param array $whereParams Parameters for where
      * @return static[]
      * @throws \Exception
      */
-    static public function getAll(string $whereClause = '')
+    static public function getAll()
     {
         self::connect();
         try {
@@ -225,6 +223,11 @@ abstract class Model implements JsonSerializable
         }
     }
 
+    /**
+     * Updates current model in database
+     * @return mixed
+     * @throws \Exception
+     */
     public function update()
     {
         self::connect();
@@ -253,12 +256,13 @@ abstract class Model implements JsonSerializable
     }
 
     /**
-     * @param $orderByCol
-     * @param $desc bool
+     * Gets all elements but orders them by specific column and also from which way we want the data to present
+     * @param int $orderByCol - number of column we want to use
+     * @param bool $desc - if true DESC otherwise ASC
      * @return array
      * @throws \Exception
      */
-    static public function getAllOrderBy($orderByCol, $desc)
+    static public function getAllOrderBy(int $orderByCol, bool $desc)
     {
         $order = $desc === true ? 'DESC' : 'ASC';
         self::connect();
@@ -288,8 +292,9 @@ abstract class Model implements JsonSerializable
     }
 
     /**
-     * @param $keyVal
-     * @return bool True if key is present in table
+     * Checks if key is present in database
+     * @param $keyVal - keys value
+     * @return bool - True if key is present in table
      * @throws \Exception
      */
     static public function containsKey($keyVal)
@@ -309,48 +314,14 @@ abstract class Model implements JsonSerializable
     }
 
     /**
-     * @param $from
-     * @param $len
+     * Gets fixed amount of data from specific index and orders them by column
+     * @param int $from
+     * @param int $len
+     * @param int $orderByCol
      * @return array
      * @throws \Exception
      */
-    static public function getFrom($from, $len)
-    {
-        self::connect();
-        try
-        {
-            $sql = "SELECT * FROM " . self::getTableName() . " LIMIT :limit, :len";
-            $stmt = self::$connection->prepare($sql);
-            $stmt->bindValue(':limit', (int) $from, PDO::PARAM_INT);
-            $stmt->bindValue(':len', (int) $len, PDO::PARAM_INT);
-            $stmt->execute();
-            $dbModels = $stmt->fetchAll();
-            $models = [];
-            foreach ($dbModels as $model)
-            {
-                $tmpModel = new static();
-                $data = array_fill_keys(self::getDbColumns(), null);
-                foreach ($data as $key => $item) {
-                    $tmpModel->$key = $model[$key];
-                }
-                $models[] = $tmpModel;
-            }
-            return $models;
-        }
-        catch (PDOException $e)
-        {
-            throw new \Exception('Query failed: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * @param $from
-     * @param $len
-     * @param $orderByCol
-     * @return array Array of items
-     * @throws \Exception
-     */
-    static public function getFromOrderBy($from, $len, $orderByCol)
+    static public function getFromOrderBy(int $from, int $len, int $orderByCol)
     {
         self::connect();
         try
@@ -380,6 +351,11 @@ abstract class Model implements JsonSerializable
         }
     }
 
+    /**
+     * Returns the total amount of rows in table
+     * @return int
+     * @throws \Exception
+     */
     static public function getNumberOfRows()
     {
         self::connect();
@@ -396,7 +372,15 @@ abstract class Model implements JsonSerializable
         }
     }
 
-    static public function getAllWhereOrder($whereCol, $whereCond, $orderBy)
+    /**
+     * Gets all data that meets certain criteria of where condition
+     * @param string $whereCol - which column to use
+     * @param string $whereCond - what do we want
+     * @param int $orderBy - order by this column
+     * @return array
+     * @throws \Exception
+     */
+    static public function getAllWhereOrder(string $whereCol, string $whereCond, int $orderBy)
     {
         self::connect();
         try {

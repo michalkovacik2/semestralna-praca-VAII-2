@@ -3,7 +3,10 @@
 
 namespace App\Models;
 
-
+/**
+ * Class BookReservationsPending is a helper class for getting reservations of users
+ * @package App\Models
+ */
 class BookReservationsPending implements \JsonSerializable
 {
     private $reservation_id;
@@ -38,14 +41,15 @@ class BookReservationsPending implements \JsonSerializable
         $this->return_day = $return_day;
     }
 
-    /**
-     * @return string[]
-     */
     public static function getDBColumns()
     {
         return ['reservation_id', 'ISBN', 'name', 'book_id', 'email' , 'request_date', 'reserve_day', 'return_day'];
     }
 
+    /**
+     * Sets the values from data
+     * @param $data
+     */
     public function setValues($data)
     {
         $this->reservation_id = $data['reservation_id'];
@@ -63,6 +67,7 @@ class BookReservationsPending implements \JsonSerializable
         return get_object_vars($this);
     }
 
+    // region Getters and setters
 
     /**
      * @return mixed|null
@@ -191,4 +196,6 @@ class BookReservationsPending implements \JsonSerializable
     {
         $this->return_day = $return_day;
     }
+
+    //endregion
 }

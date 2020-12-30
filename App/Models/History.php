@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Models;
-
 use DateTime;
 
+/**
+ * Class History is a helper class for user history on profil page
+ * @package App\Models
+ */
 class History
 {
     private $name;
@@ -47,6 +50,10 @@ class History
                 'reserve_day', 'return_day', 'picture'];
     }
 
+    /**
+     * Sets the values from data
+     * @param $data
+     */
     public function setValues($data)
     {
         $this->name = $data['name'];
@@ -58,6 +65,8 @@ class History
         $this->return_day = $data['return_day'];
         $this->picture = $data['picture'];
     }
+
+    // region Getters and setters
 
     /**
      * @return mixed|null
@@ -221,5 +230,7 @@ class History
     {
         $this->picture = $picture;
     }
+
+    //endregion
 
 }

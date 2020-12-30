@@ -3,6 +3,10 @@
 namespace App\Models;
 use App\Core\Model;
 
+/**
+ * Class Book represents database entity book
+ * @package App\Models
+ */
 class Book extends Model
 {
     protected $book_id;
@@ -18,8 +22,6 @@ class Book extends Model
         $this->book_id = null;
         $this->ISBN = $ISBN;
     }
-
-
 
     static public function setDbColumns()
     {
@@ -47,6 +49,7 @@ class Book extends Model
         $this->ISBN = $data['ISBN'];
     }
 
+    // region Getters and setters
     /**
      * @return null
      */
@@ -70,4 +73,6 @@ class Book extends Model
     {
         $this->ISBN = $ISBN;
     }
+
+    // endregion
 }

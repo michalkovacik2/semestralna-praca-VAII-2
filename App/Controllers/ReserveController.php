@@ -10,15 +10,29 @@ use App\Models\Genre;
 use App\Models\GenreCounts;
 use App\Models\Reservation;
 
+/**
+ * Class ReserveController represents a controller for reservation page
+ * @package App\Controllers
+ */
 class ReserveController extends AControllerBase
 {
     private const BOOKS_PER_PAGE = 5;
 
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function index()
     {
         return $this->html(null);
     }
 
+    /**
+     * Action that is used to add book to database
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function addBook()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -79,6 +93,11 @@ class ReserveController extends AControllerBase
                                           , 'errors' => $res, 'genres' => $genres]);
     }
 
+    /**
+     * Action that is used to edit book info
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function editBook()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
@@ -173,11 +192,23 @@ class ReserveController extends AControllerBase
             , 'errors' => $errs, 'genres' => $genres]);
     }
 
+    /**
+     * Action that sends JSON data of all genres and count of books.
+     * @return \App\Core\Responses\JsonResponse
+     */
     public function genres()
     {
         return $this->json($this->generateGenres());
     }
 
+    /**
+     * Action that send data of books in JSON.
+     * Get param - 'like' - is used for autocomplete
+     * Get param - 'page' - which page the client wants
+     * Get param - 'filter' - filter data based on genre_id
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function books()
     {
         $getData = $this->app->getRequest()->getGet();
@@ -208,6 +239,11 @@ class ReserveController extends AControllerBase
         return $this->json($books);
     }
 
+    /**
+     * Actions that send the number of available books which can user reserve in JSON to client
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function countBook()
     {
         $getData = $this->app->getRequest()->getGet();
@@ -221,6 +257,12 @@ class ReserveController extends AControllerBase
         return $this->json($bookCount);
     }
 
+    /**
+     * Method used in AJAX to reserve book
+     * Expected parameters in POST body 'ISBN' of the book that the user wants to reserve
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function reserveBook()
     {
         $postBody = file_get_contents('php://input');
@@ -250,13 +292,19 @@ class ReserveController extends AControllerBase
             return $this->json(['Error' => 'Môžete si rezervovať iba jednu rovnakú knihu']);
         }
 
-        /** @var $freeBooks Book[] */
         $freeBooks = ComplexQuery::getAvailableBooks($data->ISBN);
         $r = new Reservation(date('Y-m-d'), null, null, $freeBooks[0]->getBookId(), $this->app->getAuth()->getLoggedUser()->getEmail());
         $r->save();
         return $this->json(['Error' => '']);
     }
 
+    /**
+     * Method used in AJAX to add or edit genres of books
+     * Expected parameters in POST body: 'genre_id' - if -1 then it will create new genre
+     *                                   'name' - name to change of create
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function modifyGenre()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
@@ -303,19 +351,36 @@ class ReserveController extends AControllerBase
         return $this->json(['Error' => '']);
     }
 
+    /**
+     * Helper method to create the count of books to specific genres and also adds All column
+     * @return array
+     * @throws \Exception
+     */
     private function generateGenres()
     {
         $genres = ComplexQuery::getGenresCount();
         $sum = 0;
         foreach ($genres as $genre)
         {
-            /** @var $genre GenreCounts */
             $sum += $genre->getCount();
         }
         array_unshift($genres, new GenreCounts('Všetky', strval($sum)));
         return $genres;
     }
 
+    /**
+     * Method used to validate book info
+     * @param $ISBN
+     * @param $name
+     * @param $author_name
+     * @param $author_surname
+     * @param $release_year
+     * @param $info
+     * @param $genre_id
+     * @param $file
+     * @param $amount
+     * @return array|null
+     */
     private function validate($ISBN, $name, $author_name, $author_surname, $release_year, $info, $genre_id, $file, $amount)
     {
         $nameErrs = Book_info::checkName($name);

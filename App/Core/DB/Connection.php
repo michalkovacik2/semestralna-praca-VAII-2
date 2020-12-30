@@ -10,7 +10,6 @@ class Connection
 {
     private $db;
     private static $instance;
-
     private static $log = [];
 
     public function __construct($db)

@@ -5,8 +5,17 @@ namespace App\Controllers;
 use App\Core\AControllerBase;
 use App\Models\User;
 
+/**
+ * Class RegisterController represents a controller for register page
+ * @package App\Controllers
+ */
 class RegisterController extends AControllerBase
 {
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function index()
     {
         $postData = $this->app->getRequest()->getPost();
@@ -25,6 +34,7 @@ class RegisterController extends AControllerBase
         $errs = $this->isValid($name, $surname, $email, $phone, $password, $passwordAgain);
         if (is_null($errs))
         {
+            //is valid
             $name = htmlspecialchars($name);
             $surname = htmlspecialchars($surname);
             $password = password_hash($password, PASSWORD_DEFAULT);
@@ -46,6 +56,17 @@ class RegisterController extends AControllerBase
         }
     }
 
+    /**
+     * Method used to check if user data is valid
+     * @param $name
+     * @param $surname
+     * @param $email
+     * @param $phone
+     * @param $password
+     * @param $passwordAgain
+     * @return array|null
+     * @throws \Exception
+     */
     private function isValid($name, $surname, $email, $phone, $password, $passwordAgain)
     {
         $nameErrs = User::checkName($name);
@@ -69,6 +90,12 @@ class RegisterController extends AControllerBase
 
     }
 
+    /**
+     * Method used to compare entered passwords if they are the same
+     * @param $password
+     * @param $passwordAgain
+     * @return array
+     */
     private function comparePasswords($password, $passwordAgain)
     {
         $password2Errs = [];

@@ -4,6 +4,10 @@ namespace App\Models;
 use App\Core\Model;
 use DateTime;
 
+/**
+ * Class User represents database entity user
+ * @package App\Models
+ */
 class User extends Model
 {
     private const MAX_SIZE_NAME = 30;

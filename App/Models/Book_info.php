@@ -1,10 +1,13 @@
 <?php
 
-
 namespace App\Models;
 use App\Core\KeyNotFoundException;
 use App\Core\Model;
 
+/**
+ * Class Book_info represents database entity Book_info
+ * @package App\Models
+ */
 class Book_info extends Model
 {
     protected $ISBN;
@@ -81,7 +84,12 @@ class Book_info extends Model
         return 'book_info';
     }
 
-    static public function checkName($name)
+    /**
+     * Check if name is valid
+     * @param string $name - name to check
+     * @return array - errors found, empty if none are found
+     */
+    static public function checkName(string $name)
     {
         $nameErrs = [];
         if (empty($name))
@@ -96,6 +104,12 @@ class Book_info extends Model
         return $nameErrs;
     }
 
+    /**
+     * Check if ISBN is valid
+     * @param $ISBN - ISBN to check
+     * @return array - errors found, empty if none are found
+     * @throws \Exception
+     */
     static public function checkISBN($ISBN)
     {
         $ISBNerrs = [];
@@ -155,7 +169,12 @@ class Book_info extends Model
         return $ISBNerrs;
     }
 
-    static public function checkAuthorName($author_name)
+    /**
+     * Check if author_name is valid
+     * @param string $author_name
+     * @return array - errors found, empty if none are found
+     */
+    static public function checkAuthorName(string $author_name)
     {
         $nameErrs = [];
         if (empty($author_name))
@@ -170,7 +189,12 @@ class Book_info extends Model
         return $nameErrs;
     }
 
-    static public function checkAuthorSurname($author_surname)
+    /**
+     * Check if authors surname is valid
+     * @param string $author_surname
+     * @return array - errors found, empty if none are found
+     */
+    static public function checkAuthorSurname(string $author_surname)
     {
         $surnameErrs = [];
         if (empty($author_surname))
@@ -185,6 +209,11 @@ class Book_info extends Model
         return $surnameErrs;
     }
 
+    /**
+     * Check if year is valid
+     * @param $year - year to check
+     * @return array - errors found, empty if none are found
+     */
     static public function checkReleaseYear($year)
     {
         $yearErrs = [];
@@ -209,6 +238,11 @@ class Book_info extends Model
         return $yearErrs;
     }
 
+    /**
+     * Checks if info is valid
+     * @param $info
+     * @return array - errors found, empty if none are found
+     */
     static public function checkInfo($info)
     {
         $textErrs = [];
@@ -219,6 +253,12 @@ class Book_info extends Model
         return $textErrs;
     }
 
+    /**
+     * Checks if genre is valid
+     * @param $genre
+     * @return array - errors found, empty if none are found
+     * @throws \Exception
+     */
     static public function checkGenreID($genre)
     {
         $genreErrs = [];
@@ -234,6 +274,11 @@ class Book_info extends Model
         return $genreErrs;
     }
 
+    /**
+     * Checks if file is valid
+     * @param $file
+     * @return array - errors found, empty if none are found
+     */
     static public function checkFile($file)
     {
         $fileErrs = [];

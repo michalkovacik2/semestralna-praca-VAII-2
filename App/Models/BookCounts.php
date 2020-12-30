@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+/**
+ * Class BookCounts is a helper class for book count data in reservation
+ * @package App\Models
+ */
 class BookCounts implements \JsonSerializable
 {
     private $ISBN;
@@ -26,6 +30,10 @@ class BookCounts implements \JsonSerializable
         return ['ISBN', 'cnt'];
     }
 
+    /**
+     * Sets the values from data
+     * @param $data
+     */
     public function setValues($data)
     {
         $this->ISBN = $data['ISBN'];

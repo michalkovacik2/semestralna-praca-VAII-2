@@ -1,5 +1,11 @@
+/**
+ * Main class of reservation site
+ */
 class Reservation
 {
+    /**
+     * Constructor
+     */
     constructor()
     {
         this._books = new Map();
@@ -8,32 +14,32 @@ class Reservation
         this._page = 1;
         this._searchBar = null;
         this._admin = false;
-        this._searchTimer;
 
         this.reloadData();
         this.reloadBookCount();
 
         let self = this;
-        $("#searchBar").on("input", function()
+        //detect input on search bar
+        $("#searchBar").on("input", () =>
         {
             clearTimeout(self._searchTimer);
-            self._searchTimer = setTimeout(function() { self.handleSearchBar(); }, 500);
+            self._searchTimer = setTimeout(() => { self.handleSearchBar(); }, 500);
         });
 
-        setInterval(() => {
-            this.reloadData()
-        }, 9000);
-
-        setInterval(() => {
-            this.reloadBookCount()
-        }, 3000);
+        setInterval(() => { this.reloadData(); }, 9000);
+        setInterval(() => { this.reloadBookCount(); }, 3000);
     }
 
+    /**
+     * ASYNC method that gets all the book and also send filter paraeters
+     * @returns {Promise<void>}
+     */
     async getBooks()
     {
         try
         {
-            let link = this._filter == null ? "semestralka?c=Reserve&a=books&page=" + this._page : "semestralka?c=Reserve&a=books&filter=" + this._filter + "&page=" + this._page;
+            let link = "semestralka?c=Reserve&a=books&page=" + this._page;
+            link += this._filter == null ? "" : "&filter=" + this._filter;
             link += this._searchBar == null ? "" : "&like=" + this._searchBar;
             let response = await fetch(link);
             let data = await response.json();
@@ -45,8 +51,7 @@ class Reservation
             let map = new Map();
             data.forEach((book) =>
             {
-                var bookObj = new Book(book);
-                map.set(book.ISBN, bookObj);
+                map.set(book.ISBN, new Book(book));
             });
 
             //If there is something changed in data then update html.
@@ -65,7 +70,7 @@ class Reservation
                 //If admin then create click on edit
                 if (this._admin)
                 {
-                    $('.adminEdit').on('click', function(event)
+                    $('.adminEdit').on('click', (event) =>
                     {
                         self.handleEditBook(event);
                     })
@@ -76,7 +81,7 @@ class Reservation
                 paginator.displayPages();
                 for (let i=0; i < paginator.getNumberOfPages(); i++)
                 {
-                    $('#paginator'+(i+1)).on('click', function(event)
+                    $('#paginator'+(i+1)).on('click', (event) =>
                     {
                         self.handleClickPaginator(event);
                     });
@@ -90,6 +95,10 @@ class Reservation
         }
     }
 
+    /**
+     * ASYNC method that gets genres and books counts for them
+     * @returns {Promise<void>}
+     */
     async getGenres()
     {
         try
@@ -98,7 +107,6 @@ class Reservation
             let data = await response.json();
 
             let newGenres = new Map();
-            //Get new data and check differences
             data.forEach((genre) =>
             {
                 let genreObj = new Genre(genre);
@@ -124,19 +132,19 @@ class Reservation
                 {
                     if (genre.genre_id !== "")
                     {
-                        $('#radioEdit'+genre.genre_id).on('click', function(event)
+                        $('#radioEdit'+genre.genre_id).on('click', (event) =>
                         {
                             self.handleEditGenre(event, genre.name);
                         });
                     }
                 });
 
-                $( '#addGenre' ).on('click', function(event)
+                $( '#addGenre' ).on('click', () =>
                 {
-                    self.handleAddGenre(event);
+                    self.handleAddGenre();
                 });
 
-                $( ':radio' ).on('click', function(event)
+                $( ':radio' ).on('click', (event) =>
                 {
                     self.handleClick(event);
                 });
@@ -148,22 +156,30 @@ class Reservation
         }
     }
 
+    /**
+     * ASYNC method that gets the number of available books
+     * @returns {Promise<void>}
+     */
     async getNumberOfAvailableBooks()
     {
         try
         {
-            let link = this._filter == null ? "semestralka?c=Reserve&a=countBook" : "semestralka?c=Reserve&a=countBook&filter=" + this._filter;
+            let link = "semestralka?c=Reserve&a=countBook";
+            link += this._filter == null ? "" : "&filter=" + this._filter;
             let response = await fetch(link);
             let data = await response.json();
 
             let bookCountMap = new Map();
 
             let self = this;
-            data.forEach((bookCount) => { bookCountMap.set(bookCount.ISBN, bookCount.count); });
+            data.forEach((bookCount) =>
+            {
+                bookCountMap.set(bookCount.ISBN, bookCount.count);
+            });
+
             for (let [key, val] of this._books)
             {
-                let o = document.getElementById("count"+ key);
-                let html;
+                let html = "";
                 let count = bookCountMap.get(key);
                 if (count === undefined)
                 {
@@ -175,8 +191,8 @@ class Reservation
                     html = `<i class="fas fa-check-circle dostupneIcon"></i> Dostupné ` + count + ` ks
                             <a id="reserve` + key + `" href="#" class="btn buttonAvailable float-right">Rezervovať</a>`;
                 }
-                o.innerHTML = html;
-                $('#reserve'+key).on('click', function(event)
+                document.getElementById("count"+ key).innerHTML = html;
+                $('#reserve'+key).on('click', (event) =>
                 {
                     self.handleClickReserve(event);
                 });
@@ -208,17 +224,24 @@ class Reservation
 
             let dataResponse = await response.text();
             let responseJson = JSON.parse(dataResponse);
-            let popUp = new InfoPopUp();
+            let textToShow = "";
             if (responseJson.Error === "")
             {
-                popUp.setSuccess("Rezervácia knihy prebehla úspešne");
-                popUp.show();
+                textToShow = "Rezervácia knihy prebehla úspešne";
             }
             else
             {
-                popUp.setAlert("Chyba pri rezervovaní knihy <br>" + responseJson.Error);
-                popUp.show();
+                textToShow = "Chyba pri rezervovaní knihy <br>" + responseJson.Error;
             }
+
+            let popUp = new InfoPopUp(textToShow);
+
+            if (responseJson.Error === "")
+                popUp.setSuccess();
+            else
+                popUp.setAlert();
+
+            popUp.show();
             this.getNumberOfAvailableBooks();
 
         } catch (e)
@@ -227,6 +250,12 @@ class Reservation
         }
     }
 
+    /**
+     * ASYNC method that is used to create or update genre
+     * @param id - id of genre or null if not set
+     * @param name - entered name
+     * @returns {Promise<void>}
+     */
     async modifyGenre(id, name)
     {
         try {
@@ -266,6 +295,10 @@ class Reservation
         }
     }
 
+    /**
+     * Handler for click on radio buttons
+     * @param event
+     */
     handleClick(event)
     {
         let text = event.toElement.id.replace("radio", "");
@@ -274,6 +307,10 @@ class Reservation
         this.getBooks();
     }
 
+    /**
+     * Handler for click on page numbers
+     * @param event
+     */
     handleClickPaginator(event)
     {
         let text = event.toElement.id.replace("paginator", "");
@@ -281,6 +318,10 @@ class Reservation
         this.getBooks();
     }
 
+    /**
+     * Handler for click on reserve buttons
+     * @param event
+     */
     handleClickReserve(event)
     {
         let text = event.toElement.id.replace("reserve", "");
@@ -288,6 +329,9 @@ class Reservation
         this.sendReservation(ISBN);
     }
 
+    /**
+     * Handler for input from search bar
+     */
     handleSearchBar()
     {
         this._page = 1;
@@ -295,6 +339,10 @@ class Reservation
         this.getBooks();
     }
 
+    /**
+     * Handler for clicking on editing book
+     * @param event
+     */
     handleEditBook(event)
     {
         let text = event.toElement.id.replace("adminEdit", "");
@@ -302,15 +350,16 @@ class Reservation
         $("#editBookFormID").submit();
     }
 
-    handleAddGenre(event)
+    /**
+     * handler for add new genre
+     */
+    handleAddGenre()
     {
-        let title = document.getElementById('modalGenreTitle');
-        let inputBox = document.getElementById('modalGenreName');
+        document.getElementById('modalGenreTitle').innerText = "Pridajte nový žáner";
+        document.getElementById('modalGenreName').value = "";
         document.getElementById('modalGenreErrors').classList.add("d-none");
         let $button = $('#modalGenreButton');
-        inputBox.value = "";
         $button.text("Pridaj");
-        title.innerText = "Pridajte nový žáner";
         $('#modalGenre').modal('show');
 
         let self = this;
@@ -322,16 +371,19 @@ class Reservation
         });
     }
 
+    /**
+     * Handler for editing genre
+     * @param event
+     * @param name
+     */
     handleEditGenre(event, name)
     {
         let id  = event.toElement.id.replace("radioEdit", "");
-        let title = document.getElementById('modalGenreTitle');
-        let $button = $('#modalGenreButton');
-        let inputBox = document.getElementById('modalGenreName');
+        document.getElementById('modalGenreTitle').innerText = "Upravte žáner";
+        document.getElementById('modalGenreName').value = name;
         document.getElementById('modalGenreErrors').classList.add("d-none");
+        let $button = $('#modalGenreButton');
         $button.text("Uprav");
-        title.innerText = "Upravte žáner";
-        inputBox.value = name;
         $('#modalGenre').modal('show');
 
         let self = this;
@@ -343,20 +395,33 @@ class Reservation
         });
     }
 
+    /**
+     * Method used to update data
+     */
     reloadData()
     {
         this.getBooks();
         this.getGenres();
     }
 
+    /**
+     * Method used to update book count
+     */
     reloadBookCount()
     {
         this.getNumberOfAvailableBooks();
     }
 }
 
+/**
+ * Represents book
+ */
 class Book
 {
+    /**
+     * Constructor
+     * @param json - data in json format
+     */
     constructor(json)
     {
         this._ISBN = json.ISBN;
@@ -370,6 +435,11 @@ class Book
         this._genre_name = json.genre_name;
     }
 
+    /**
+     * It is used to generate html
+     * @param admin - true if it is admin false otherwise
+     * @returns {string}
+     */
     generateHtml(admin)
     {
         let html = "";
@@ -397,18 +467,11 @@ class Book
         return html;
     }
 
-    hideElement()
-    {
-        let element = document.getElementById('book'+this.ISBN);
-        element.style.display = 'none';
-    }
-
-    showElement()
-    {
-        let element = document.getElementById('book'+this.ISBN);
-        element.style.display = 'block';
-    }
-
+    /**
+     * Used to compare two Books
+     * @param other
+     * @returns {boolean}
+     */
     equals(other)
     {
         const keys1 = Object.keys(this);
@@ -503,8 +566,15 @@ class Book
     // endregion
 }
 
+/**
+ * Represents genre
+ */
 class Genre
 {
+    /**
+     * Constructor
+     * @param json - input data in json format
+     */
     constructor(json)
     {
         this._genre_id = json.genre_id;
@@ -512,6 +582,11 @@ class Genre
         this._count = json.count;
     }
 
+    /**
+     * Method used to generate html
+     * @param admin
+     * @returns {string}
+     */
     generateHtml(admin)
     {
         var html = "";
@@ -526,6 +601,11 @@ class Genre
         return html;
     }
 
+    /**
+     * Compare two genres
+     * @param other
+     * @returns {boolean}
+     */
     equals(other)
     {
         const keys1 = Object.keys(this);
@@ -572,6 +652,12 @@ class Genre
     // endregion
 }
 
+/**
+ * Compare two maps and their values
+ * @param map1
+ * @param map2
+ * @returns {boolean}
+ */
 function compareMapsOfBooks(map1, map2)
 {
     var testVal;
@@ -587,7 +673,4 @@ function compareMapsOfBooks(map1, map2)
     return true;
 }
 
-document.addEventListener('DOMContentLoaded', () =>
-{
-    let reservation = new Reservation();
-}, false);
+document.addEventListener('DOMContentLoaded', () => { new Reservation(); }, false);

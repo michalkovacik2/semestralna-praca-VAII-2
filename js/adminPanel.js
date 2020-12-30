@@ -1,10 +1,15 @@
+/**
+ * Main class for admin panel page
+ */
 class AdminPanel
 {
+    /**
+     * Constructor
+     */
     constructor()
     {
         this._searchBar = null;
         this._page = 1;
-        this._searchTimer;
 
         let self = this;
         $("#searchBar").on("input", () =>
@@ -13,13 +18,14 @@ class AdminPanel
             self._searchTimer = setTimeout(function() { self.handleSearchBar(); }, 200);
         });
 
-        this.getData();
         this.reloadData();
-        setInterval(() => {
-            this.reloadData()
-        }, 2000);
+        setInterval(() => { this.reloadData(); }, 2000);
     }
 
+    /**
+     * ASYNC method used to get the reservation data
+     * @returns {Promise<void>}
+     */
     async getData()
     {
         try
@@ -76,6 +82,12 @@ class AdminPanel
         }
     }
 
+    /**
+     * ASYNC method used to send action delete, lend, return
+     * @param command - delete, lend, return
+     * @param id - id of reservation
+     * @returns {Promise<void>}
+     */
     async sendAction(command, id) {
         try {
             let response = await fetch("semestralka?c=AdminPanel&a=modify" , {
@@ -107,17 +119,23 @@ class AdminPanel
 
             let dataResponse = await response.text();
             let responseJson = JSON.parse(dataResponse);
-            let popUp = new InfoPopUp();
+            let textToShow = "";
             if (responseJson.Error === "")
             {
-                popUp.setSuccess(text);
-                popUp.show();
+                textToShow = text;
             }
             else
             {
-                popUp.setAlert("Došlo k chybe: <br>" + responseJson.Error);
-                popUp.show();
+                textToShow = "Došlo k chybe: <br>" + responseJson.Error;
             }
+
+            let popUp = new InfoPopUp(textToShow);
+            if (responseJson.Error === "")
+                popUp.setSuccess();
+            else
+                popUp.setAlert();
+
+            popUp.show();
 
         } catch (e)
         {
@@ -125,11 +143,18 @@ class AdminPanel
         }
     }
 
+    /**
+     * Method used to update data
+     */
     reloadData()
     {
         this.getData();
     }
 
+    /**
+     * Handler for clicking on page numbers
+     * @param event
+     */
     handleClickPaginator(event)
     {
         let text = event.toElement.id.replace("paginator", "");
@@ -137,6 +162,9 @@ class AdminPanel
         this.getData();
     }
 
+    /**
+     * Handler for input from search bar
+     */
     handleSearchBar()
     {
         this._page = 1;
@@ -144,24 +172,43 @@ class AdminPanel
         this.getData();
     }
 
+    /**
+     * Handler for button delete, id - reservation which was clicked
+     * @param id
+     */
     handleButtonDelete(id)
     {
         this.sendAction("delete", id);
     }
 
+    /**
+     * Handler for button lend, id - reservation which was clicked
+     * @param id
+     */
     handleButtonLend(id)
     {
         this.sendAction("lend", id);
     }
 
+    /**
+     * Handler for button return, id - reservation which was clicked
+     * @param id
+     */
     handleButtonReturn(id)
     {
         this.sendAction("return", id);
     }
 }
 
+/**
+ * Represents one row in a table
+ */
 class TableRow
 {
+    /**
+     * Constructor
+     * @param json - expects the data to be in json format
+     */
     constructor(json)
     {
         this._reservation_id = json.reservation_id;
@@ -174,6 +221,10 @@ class TableRow
         this._return_day = this.formatDate(json.return_day);
     }
 
+    /**
+     * Generates html
+     * @returns {string}
+     */
     generateHTML()
     {
         let html = '';
@@ -188,6 +239,10 @@ class TableRow
         return html;
     }
 
+    /**
+     * Sets onclick action for buttons
+     * @param adminPanel
+     */
     setOnclick(adminPanel)
     {
         if (this._reserve_day == null && this._return_day == null)
@@ -217,6 +272,11 @@ class TableRow
         }
     }
 
+    /**
+     * used to format date
+     * @param date
+     * @returns {string|null}
+     */
     formatDate(date)
     {
         if (date == null)
@@ -227,7 +287,4 @@ class TableRow
     }
 }
 
-document.addEventListener('DOMContentLoaded', () =>
-{
-    let adminPanel = new AdminPanel();
-}, false);
+document.addEventListener('DOMContentLoaded', () => {new AdminPanel();}, false);

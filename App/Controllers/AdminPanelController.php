@@ -1,23 +1,36 @@
 <?php
 
-
 namespace App\Controllers;
 use App\Core\AControllerBase;
 use App\Core\ComplexQuery;
 use App\Core\KeyNotFoundException;
-use App\Core\Responses\Response;
-use App\Models\BookReservationsPending;
 use App\Models\Reservation;
 
+/**
+ * Class AdminPanelController represents controller for admin page
+ * @package App\Controllers
+ */
 class AdminPanelController extends AControllerBase
 {
     private const ROWS_PER_PAGE = 10;
 
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     */
     public function index()
     {
         return $this->html(null);
     }
 
+    /**
+     * Method for AJAX. Return JSON with user reservation data.
+     * Data: 'ISBN', 'Kniha', 'ID knihy', 'Užívateľ', 'Rezervované', 'Požičané', 'Vrátené'
+     * Get param - 'like' - is used for autocomplete
+     * Get param - 'page' - which page the client wants
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function userReservation()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
@@ -29,7 +42,7 @@ class AdminPanelController extends AControllerBase
         if (isset($getData['like']))
         {
             $like = $getData['like'];
-            $like = addcslashes($like, '%_');
+            $like = addcslashes($like, '%_'); //escape % and _
         }
 
         $page = 1;
@@ -45,6 +58,12 @@ class AdminPanelController extends AControllerBase
         return $this->json($data);
     }
 
+    /**
+     * Method that is called to modify reservation. It expects JSON data: command : '' , reservation_id : ''
+     * Possible commands: 'delete', 'lend', 'return'
+     * @return \App\Core\Responses\JsonResponse
+     * @throws \Exception
+     */
     public function modify()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges()) {
@@ -72,7 +91,7 @@ class AdminPanelController extends AControllerBase
         try
         {
             /** @var $reservation Reservation */
-           $reservation = Reservation::getOne($data->reservation_id);
+            $reservation = Reservation::getOne($data->reservation_id);
         }
         catch(KeyNotFoundException $e)
         {
@@ -113,6 +132,5 @@ class AdminPanelController extends AControllerBase
         }
 
         return $this->json(['Error' => 'Zadaný command neexistuje']);
-
     }
 }

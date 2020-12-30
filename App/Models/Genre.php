@@ -3,6 +3,10 @@
 namespace App\Models;
 use App\Core\Model;
 
+/**
+ * Class Genre represents database entity Genre
+ * @package App\Models
+ */
 class Genre extends Model
 {
     private const MAX_SIZE_NAME = 30;
@@ -12,7 +16,6 @@ class Genre extends Model
 
     /**
      * Genre constructor.
-     * @param $genre_id
      * @param $name
      */
     public function __construct($name = null)
@@ -36,6 +39,10 @@ class Genre extends Model
         return 'genre';
     }
 
+    /** Checks if genre name is valid
+     * @param $name
+     * @return array - errors found, empty if none are found
+     */
     static public function checkName($name)
     {
         $nameErrs = [];
@@ -50,6 +57,8 @@ class Genre extends Model
         }
         return $nameErrs;
     }
+
+    //region Getters and setters
 
     /**
      * @return null
@@ -74,4 +83,6 @@ class Genre extends Model
     {
         $this->name = $name;
     }
+
+    //endregion
 }

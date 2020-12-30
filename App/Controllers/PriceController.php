@@ -5,14 +5,28 @@ use App\Core\AControllerBase;
 use App\Core\KeyNotFoundException;
 use App\Models\Price_list;
 
+/**
+ * Class PriceController represents controller for price list page
+ * @package App\Controllers
+ */
 class PriceController extends AControllerBase
 {
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function index()
     {
         $data = Price_list::getAllOrderBy(3, false);
         return $this->html([ 'data' => $data ]);
     }
 
+    /**
+     * Action to add new charge to price list.
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function add()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -48,6 +62,11 @@ class PriceController extends AControllerBase
         return $this->html(null);
     }
 
+    /**
+     * Action to edit existing charge in price list
+     * @return \App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function edit()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -62,11 +81,11 @@ class PriceController extends AControllerBase
             return $this->html("semestralka?c=Price");
         }
 
-        /** @var $priceData Price_list */
         $priceData = null;
         $errs = null;
         try
         {
+            /** @var $priceData Price_list */
             $priceData = Price_list::getOne($getData['id']);
         }
         catch (KeyNotFoundException $ex)
@@ -100,6 +119,10 @@ class PriceController extends AControllerBase
         return $this->html(['data' => ['id' => $getData['id'] , 'name' => $name, 'price' => $price], 'errors' => $errs]);
     }
 
+    /**
+     * Action to delete a charge from price list
+     * @throws \Exception
+     */
     public function delete()
     {
         if (!$this->app->getAuth()->isLogged() || !$this->app->getAuth()->hasPrivileges())
@@ -125,6 +148,13 @@ class PriceController extends AControllerBase
         }
     }
 
+    /**
+     * Function used to validate entered data for price list.
+     * If data is valid returns null otherwise it returns array with errors.
+     * @param $name
+     * @param $price
+     * @return array|null
+     */
     private function validate($name, $price)
     {
         $nameErrs = Price_list::checkName($name);

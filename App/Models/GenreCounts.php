@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+/**
+ * Class GenreCounts is a helper class for calculating how many books are in each category
+ * @package App\Models
+ */
 class GenreCounts implements \JsonSerializable
 {
     private $genre_id;
@@ -12,6 +16,7 @@ class GenreCounts implements \JsonSerializable
      * GenreCounts constructor.
      * @param $name
      * @param $count
+     * @param $genre_id
      */
     public function __construct($name = null, $count = null, $genre_id = null)
     {
@@ -28,12 +33,23 @@ class GenreCounts implements \JsonSerializable
         return ['name', 'cnt', 'genre_id'];
     }
 
+    public function jsonSerialize()
+    {
+        return get_object_vars($this);
+    }
+
+    /**
+     * Sets the values from data
+     * @param $data
+     */
     public function setValues($data)
     {
         $this->name = $data['name'];
         $this->count = $data['cnt'];
         $this->genre_id = $data['genre_id'];
     }
+
+    //region Getters and setters
 
     /**
      * @return mixed|null
@@ -44,9 +60,9 @@ class GenreCounts implements \JsonSerializable
     }
 
     /**
-     * @param mixed|null $name
+     * @param mixed|null
      */
-    public function setName( $name): void
+    public function setName($name): void
     {
         $this->name = $name;
     }
@@ -82,9 +98,6 @@ class GenreCounts implements \JsonSerializable
         $this->genre_id = $genre_id;
     }
 
+    //endregion
 
-    public function jsonSerialize()
-    {
-        return get_object_vars($this);
-    }
 }

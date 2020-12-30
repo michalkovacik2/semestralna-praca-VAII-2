@@ -6,15 +6,30 @@ use App\Core\ComplexQuery;
 use App\Core\Paginator;
 use App\Models\User;
 
+/**
+ * Class ProfilController represents a controller for profil page
+ * @package App\Controllers
+ */
 class ProfilController extends AControllerBase
 {
     private const RESERVATIONS_PER_PAGE = 5;
 
+    /**
+     * Only users that are logged in are allowed to this site,
+     * if you are not logged in then it redirects you to login page
+     * @param string $action
+     * @return bool
+     */
     public function authorize(string $action)
     {
         return $this->app->getAuth()->isLogged();
     }
 
+    /**
+     * Method implemented from AControllerBase for index action
+     * @return \App\Core\Responses\Response|\App\Core\Responses\ViewResponse
+     * @throws \Exception
+     */
     public function index()
     {
         $postData = $this->app->getRequest()->getPost();
@@ -49,7 +64,7 @@ class ProfilController extends AControllerBase
         $numberOfRows = ComplexQuery::getUserHistoryCount($user->getEmail());
         $paginator = new Paginator(self::RESERVATIONS_PER_PAGE, $numberOfRows, "semestralka?c=Profil&page=");
         $page = !isset($_GET['page']) ? $_GET['page'] = 1 : $_GET['page'];
-        $history= $paginator->getData($page, ComplexQuery::class, $user->getEmail(), 'getUserHistory');
+        $history = $paginator->getData($page, ComplexQuery::class, $user->getEmail(), 'getUserHistory');
 
         if (is_null($history) && ($numberOfRows == 0 && $page != 1))
         {
@@ -68,10 +83,17 @@ class ProfilController extends AControllerBase
         return $this->html($data);
     }
 
+    /**
+     * Method that is used to change users password
+     * @param $postData
+     * @return array
+     * @throws \App\Core\KeyNotFoundException
+     */
     private function changePassword($postData)
     {
         /** @var $user User */
         $user = User::getOne($this->app->getAuth()->getLoggedUser()->getEmail());
+        //Checks entered password
         if (password_verify($postData['oldPassword'], $user->getPassword()))
         {
             $passwordErrs = User::checkPassword($postData['newPassword']);
@@ -79,14 +101,14 @@ class ProfilController extends AControllerBase
             if (count($passwordErrs) > 0 || count($password2Errs) > 0)
             {
                 return ['newPassword' => $passwordErrs, 'newPassword2' => $password2Errs ,
-                           'data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ]];
+                        'data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ]];
             }
             else
             {
                 $user->setPassword($postData['newPassword']);
                 $user->update();
                 return ['success' => true,
-                                    'data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ]];
+                        'data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ]];
             }
         }
         else
@@ -96,6 +118,12 @@ class ProfilController extends AControllerBase
         }
     }
 
+    /**
+     * Method used to change users name
+     * @param $postData
+     * @return array|array[]
+     * @throws \Exception
+     */
     private function changeName($postData)
     {
         $nameErrs = User::checkName($postData['name']);
@@ -103,7 +131,7 @@ class ProfilController extends AControllerBase
         if (count($nameErrs) > 0)
         {
             return ['nameErrors' => $nameErrs ,
-                                'data' => ['name' => $postData['name'], 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ] ];
+                    'data' => ['name' => $postData['name'], 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated() ] ];
         }
 
         $user->setName(htmlspecialchars($postData['name']));
@@ -112,6 +140,12 @@ class ProfilController extends AControllerBase
         return  ['data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated()]];
     }
 
+    /**
+     * Method used to change users surname
+     * @param $postData
+     * @return array|array[]
+     * @throws \Exception
+     */
     private function changeSurname($postData)
     {
         $surnameErrs = User::checkSurname($postData['surname']);
@@ -128,6 +162,12 @@ class ProfilController extends AControllerBase
         return ['data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated()]];
     }
 
+    /**
+     * Method used to change users phone.
+     * @param $postData
+     * @return array|array[]
+     * @throws \Exception
+     */
     private function changePhone($postData)
     {
         $phoneErrs = User::checkPhone($postData['phone']);
@@ -147,6 +187,12 @@ class ProfilController extends AControllerBase
         return  ['data' => ['name' => $user->getName(), 'surname' => $user->getSurname(), 'phone' => $user->getPhoneFormated()]];
     }
 
+    /**
+     * Method used to compare entered passwords if they are the same
+     * @param $password
+     * @param $passwordAgain
+     * @return array
+     */
     private function comparePasswords($password, $passwordAgain)
     {
         $password2Errs = [];

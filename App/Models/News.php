@@ -4,6 +4,10 @@ namespace App\Models;
 use App\Core\Model;
 use DateTime;
 
+/**
+ * Class News represent database entity News
+ * @package App\Models
+ */
 class News extends Model
 {
     private const MAX_TITLE_LEN = 30;
@@ -134,10 +138,6 @@ class News extends Model
         return $fileErrs;
     }
 
-    /**
-     * @return string
-     * @throws \Exception
-     */
     public function getCreationDateFormated()
     {
         $date = new DateTime($this->creation_date);
