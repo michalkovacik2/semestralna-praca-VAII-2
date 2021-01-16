@@ -1,4 +1,4 @@
-<?php/**@var $data[]*/?>
+<?php /**@var $data[]*/ ?>
 <title>Registrácia</title>
 <link rel="stylesheet" href="semestralka/css/login_page.css">
 <link rel="stylesheet" href="semestralka/css/register_page.css">
@@ -28,7 +28,7 @@
                 <form action="semestralka?c=Register" class="mt-0 ml-5 mr-5 mb-2" method="post">
                     <div class="form-group">
                         <label for="idMeno" class="font-weight-bold">Meno</label>
-                        <input type="text" class="form-control" id="idMeno" name="name" placeholder="Meno" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['name'] ?>">
+                        <input type="text" class="form-control" id="idMeno" name="name" placeholder="Meno" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['name'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['name'])) {
                         foreach ($data['errors']['name'] as $e) { ?>
@@ -39,7 +39,7 @@
                     }?>
                     <div class="form-group">
                         <label for="idPriezvisko" class="font-weight-bold">Priezvisko</label>
-                        <input type="text" class="form-control" id="idPriezvisko" placeholder="Priezvisko" name="surname" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['surname'] ?>">
+                        <input type="text" class="form-control" id="idPriezvisko" placeholder="Priezvisko" name="surname" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['surname'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['surname'])) {
                         foreach ($data['errors']['surname'] as $e) { ?>
@@ -50,7 +50,7 @@
                     }?>
                     <div class="form-group">
                         <label for="idEmail" class="font-weight-bold">Email</label>
-                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['email'] ?>">
+                        <input type="email" class="form-control" id="idEmail" placeholder="Emailová adresa" name="email" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['email'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['email'])) {
                         foreach ($data['errors']['email'] as $e) { ?>
@@ -61,7 +61,7 @@
                     }?>
                     <div class="form-group">
                         <label for="idCislo" class="font-weight-bold">Telefónne číslo</label>
-                        <input type="tel" class="form-control" id="idCislo" placeholder="formát +421" name="phone" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['phone'] ?>">
+                        <input type="tel" class="form-control" id="idCislo" placeholder="formát +421" name="phone" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['phone'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['phone'])) {
                         foreach ($data['errors']['phone'] as $e) { ?>
@@ -72,7 +72,7 @@
                     }?>
                     <div class="form-group">
                         <label for="idHeslo" class="font-weight-bold">Heslo</label>
-                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['password'] ?>">
+                        <input type="password" class="form-control" id="idHeslo" placeholder="Heslo" name="password" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['password'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['password'])) {
                         foreach ($data['errors']['password'] as $e) { ?>
@@ -83,7 +83,7 @@
                     }?>
                     <div class="form-group">
                         <label for="idHeslo2" class="font-weight-bold">Zopakujte heslo</label>
-                        <input type="password" class="form-control" id="idHeslo2" placeholder="Heslo" name="password2" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['password2'] ?>">
+                        <input type="password" class="form-control" id="idHeslo2" placeholder="Heslo" name="password2" value="<?= is_null($data) || isset($data['logged']) ? "" : $data['data']['password2'] ?>" required>
                     </div>
                     <?php if (!is_null($data) && isset($data['errors']['password2'])) {
                         foreach ($data['errors']['password2'] as $e) { ?>

@@ -211,7 +211,7 @@ class Reservation
     async sendReservation(ISBN) {
         try {
             let response = await fetch("semestralka?c=Reserve&a=reserveBook", {
-                method: 'POST', // or 'PUT'
+                method: 'POST',
                 headers:
                 {
                     'Content-Type': "application/json",
@@ -224,7 +224,7 @@ class Reservation
 
             let dataResponse = await response.text();
             let responseJson = JSON.parse(dataResponse);
-            let textToShow = "";
+            let textToShow;
             if (responseJson.Error === "")
             {
                 textToShow = "Rezervácia knihy prebehla úspešne";
@@ -260,22 +260,30 @@ class Reservation
     {
         try {
             id = id == null ? -1 : id;
-            let response = await fetch("semestralka?c=Reserve&a=modifyGenre", {
-                method: 'POST', // or 'PUT'
-                headers:
-                    {
-                        'Content-Type': "application/json",
-                    },
-                body: JSON.stringify(
-                    {
-                        genre_id: id,
-                        name: name
-                    })
-            });
+            let responseJson;
+            if (name !== "")
+            {
+                let response = await fetch("semestralka?c=Reserve&a=modifyGenre", {
+                    method: 'POST',
+                    headers:
+                        {
+                            'Content-Type': "application/json",
+                        },
+                    body: JSON.stringify(
+                        {
+                            genre_id: id,
+                            name: name
+                        })
+                });
 
-            let dataResponse = await response.text();
-            let responseJson = JSON.parse(dataResponse);
-            console.log(responseJson.Error);
+                let dataResponse = await response.text();
+                responseJson = JSON.parse(dataResponse);
+            }
+            else
+            {
+                 responseJson = { 'Error' : "Prosím zadajte názov žánru"};
+            }
+
             if (responseJson.Error === "")
             {
                 $('#modalGenre').modal('hide');
@@ -283,7 +291,7 @@ class Reservation
             else
             {
                 let errors = document.getElementById('modalGenreErrors');
-                errors.innerHTML = "Žáner sa nepodarilo pridať <br>" + responseJson.Error;
+                errors.innerHTML = "Došlo ku chybe: <br>" + responseJson.Error;
                 errors.classList.remove("d-none");
             }
             this.getGenres();
